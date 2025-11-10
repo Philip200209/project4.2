@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .alert-header { background: #dc3545; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="alert-header">
+            <h1>🚨 High Risk Alert</h1>
+        </div>
+        <div class="content">
+            <h2>Client: {{ client_name }}</h2>
+            <p><strong>Risk Score:</strong> {{ "%.3f"|format(risk_score) }}</p>
+            <p><strong>Loan Amount:</strong> KSh {{ "%.2f"|format(loan_amount) }}</p>
+            <p>This client has been flagged as high risk and requires immediate attention.</p>
+            <p>Please review their application and consider appropriate interventions.</p>
+        </div>
+    </div>
+</body>
+</html>

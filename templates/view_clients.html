@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>📋 Client List</h3>
+    <a href="{{ url_for('clients_bp.add_client') }}" class="btn btn-primary">➕ Add Client</a>
+  </div>
+
+  {% if clients %}
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Income</th>
+        <th>Credit Score</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for client in clients %}
+      <tr>
+        <td>{{ client.name }}</td>
+        <td>{{ client.phone }}</td>
+        <td>{{ client.email }}</td>
+        <td>KES {{ client.income }}</td>
+        <td>{{ client.credit_score }}</td>
+        <td>
+          {% if client.loan_id %}
+          <a href="{{ url_for('interventions_bp.log', loan_id=client.loan_id) }}" class="btn btn-sm btn-outline-warning">Intervene</a>
+          {% else %}
+          <span class="text-muted">No loan</span>
+          {% endif %}
+          <a href="{{ url_for('clients_bp.edit_client', client_id=client.id) }}" class="btn btn-sm btn-outline-info ms-1">Edit</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert alert-info">
+    No clients found. <a href="{{ url_for('clients_bp.add_client') }}">Add one now</a>.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

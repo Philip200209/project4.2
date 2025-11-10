@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Export Loan Summary | CRiMAP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Export Loan Summary</h2>
+        <p>Click below to download loan summary for Loan ID {{ loan_id }}:</p>
+        <a href="{{ url_for('export_bp.download_summary', loan_id=loan_id) }}" class="btn btn-outline-secondary">Download PDF</a>
+    </div>
+</body>
+</html>

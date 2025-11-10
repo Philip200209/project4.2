@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Loan - CRIMAP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-back {
+            background: #95a5a6;
+            margin-top: 15px;
+        }
+
+        .btn-back:hover {
+            background: #7f8c8d;
+            box-shadow: 0 10px 25px rgba(149, 165, 166, 0.3);
+        }
+
+        .info-box {
+            background: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .info-box h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .info-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-hand-holding-usd"></i> Apply for Loan</h1>
+            <p>Complete your loan application below</p>
+        </div>
+
+        <!-- Information Box -->
+        <div class="form-container">
+            <div class="info-box">
+                <h3><i class="fas fa-info-circle"></i> Before You Apply</h3>
+                <ul>
+                    <li>Ensure all information is accurate and complete</li>
+                    <li>Loan decisions are typically made within 2-3 business days</li>
+                    <li>You'll be notified via email about your application status</li>
+                    <li>Interest rates range from 8% to 15% based on risk assessment</li>
+                </ul>
+            </div>
+
+            <!-- Loan Application Form -->
+            <form method="POST" action="/loans/apply">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount"><i class="fas fa-money-bill-wave"></i> Loan Amount (KSh)</label>
+                        <input type="number" id="amount" name="amount" min="1000" max="1000000" step="1000" 
+                               placeholder="Enter amount in KSh" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="term"><i class="fas fa-calendar-alt"></i> Loan Term (Months)</label>
+                        <select id="term" name="term" required>
+                            <option value="">Select term</option>
+                            <option value="3">3 Months</option>
+                            <option value="6">6 Months</option>
+                            <option value="12">12 Months</option>
+                            <option value="24">24 Months</option>
+                            <option value="36">36 Months</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose"><i class="fas fa-bullseye"></i> Loan Purpose</label>
+                    <select id="purpose" name="purpose" required>
+                        <option value="">Select purpose</option>
+                        <option value="Business expansion">Business Expansion</option>
+                        <option value="Education">Education</option>
+                        <option value="Home improvement">Home Improvement</option>
+                        <option value="Medical expenses">Medical Expenses</option>
+                        <option value="Vehicle purchase">Vehicle Purchase</option>
+                        <option value="Debt consolidation">Debt Consolidation</option>
+                        <option value="Personal use">Personal Use</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description"><i class="fas fa-file-alt"></i> Additional Details (Optional)</label>
+                    <textarea id="description" name="description" rows="4" 
+                              placeholder="Provide any additional information about your loan request..."></textarea>
+                </div>
+
+                <button type="submit" class="btn">
+                    <i class="fas fa-paper-plane"></i> Submit Application
+                </button>
+                
+                <a href="/borrower-dashboard" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Simple form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const amountInput = document.getElementById('amount');
+            
+            // Set reasonable default limits
+            amountInput.addEventListener('input', function() {
+                if (this.value < 1000) {
+                    this.setCustomValidity('Minimum loan amount is KSh 1,000');
+                } else if (this.value > 1000000) {
+                    this.setCustomValidity('Maximum loan amount is KSh 1,000,000');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+            
+            // Add some animation
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach((group, index) => {
+                group.style.opacity = '0';
+                group.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    group.style.transition = 'all 0.5s ease';
+                    group.style.opacity = '1';
+                    group.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

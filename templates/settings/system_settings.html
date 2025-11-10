@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}System Settings{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">⚙️ System Settings</h2>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">🔐 Role & Permission Matrix</h5>
+            <p class="card-text">Manage access control across roles and features.</p>
+            <a href="{{ url_for('settings_bp.permission_matrix') }}" class="btn btn-primary">Manage Permissions</a>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">📜 Audit Logs</h5>
+            <p class="card-text">Review system actions and user activity.</p>
+            <a href="{{ url_for('audit_bp.view_logs') }}" class="btn btn-secondary">View Audit Logs</a>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">🚩 Feature Flags</h5>
+            <p class="card-text">Toggle experimental or enterprise features.</p>
+            <a href="{{ url_for('settings_bp.feature_flags') }}" class="btn btn-info">Configure Flags</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - CRIMAP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .username {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #45a049;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .report-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .report-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .report-card p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .filters {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <a href="{{ url_for('dashboard') }}" class="back-btn">← Back to Dashboard</a>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Reports Center</h1>
+            <p class="username">Welcome, {{ username }}!</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <h3>Report Filters</h3>
+            <div class="filter-group">
+                <label for="report_type">Report Type</label>
+                <select id="report_type">
+                    <option value="all">All Reports</option>
+                    <option value="loan">Loan Reports</option>
+                    <option value="risk">Risk Analysis</option>
+                    <option value="client">Client Reports</option>
+                    <option value="financial">Financial Summary</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="date_range">Date Range</label>
+                <select id="date_range">
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="quarter">This Quarter</option>
+                    <option value="year">This Year</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+            </div>
+            <button class="btn btn-success">Generate Report</button>
+        </div>
+
+        <!-- Reports Grid -->
+        <div class="reports-grid">
+            <!-- Loan Portfolio Report -->
+            <div class="report-card">
+                <h3>📈 Loan Portfolio Report</h3>
+                <p>Comprehensive overview of all loan applications, approvals, and performance metrics.</p>
+                <div class="report-actions">
+                    <button class="btn">View Report</button>
+                    <button class="btn btn-success">Export PDF</button>
+                </div>
+            </div>
+
+            <!-- Risk Analysis Report -->
+            <div class="report-card">
+                <h3>⚠️ Risk Analysis Report</h3>
+                <p>Detailed risk assessment and credit scoring analysis for all clients.</p>
+                <div class="report-actions">
+                    <button class="btn">View Report</button>
+                    <button class="btn btn-success">Export PDF</button>
+                </div>
+            </div>
+
+            <!-- Client Performance Report -->
+            <div class="report-card">
+                <h3>👥 Client Performance Report</h3>
+                <p>Client demographics, behavior patterns, and repayment history analysis.</p>
+                <div class="report-actions">
+                    <button class="btn">View Report</button>
+                    <button class="btn btn-success">Export PDF</button>
+                </div>
+            </div>
+
+            <!-- Financial Summary Report -->
+            <div class="report-card">
+                <h3>💰 Financial Summary</h3>
+                <p>Revenue, profit margins, and financial performance metrics.</p>
+                <div class="report-actions">
+                    <button class="btn">View Report</button>
+                    <button class="btn btn-success">Export PDF</button>
+                </div>
+            </div>
+
+            <!-- Audit Trail Report -->
+            <div class="report-card">
+                <h3>🔍 Audit Trail Report</h3>
+                <p>Complete system activity log and user action tracking.</p>
+                <div class="report-actions">
+                    <button class="btn">View Report</button>
+                    <button class="btn btn-success">Export PDF</button>
+                </div>
+            </div>
+
+            <!-- Custom Report Builder -->
+            <div class="report-card">
+                <h3>🛠️ Custom Report Builder</h3>
+                <p>Create custom reports with specific filters and data points.</p>
+                <div class="report-actions">
+                    <button class="btn btn-success">Create Custom Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple filter functionality
+        document.getElementById('report_type').addEventListener('change', function() {
+            filterReports(this.value);
+        });
+
+        function filterReports(type) {
+            const reports = document.querySelectorAll('.report-card');
+            reports.forEach(report => {
+                if (type === 'all') {
+                    report.style.display = 'block';
+                } else {
+                    const title = report.querySelector('h3').textContent.toLowerCase();
+                    if (title.includes(type)) {
+                        report.style.display = 'block';
+                    } else {
+                        report.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Report generation simulation
+        document.querySelector('.btn-success').addEventListener('click', function() {
+            alert('Report generation started! This may take a few moments...');
+            // Simulate report generation
+            setTimeout(() => {
+                alert('Report generated successfully!');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

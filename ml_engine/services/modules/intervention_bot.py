@@ -1,0 +1,2 @@
+AT_USERNAME=sandbox
+AT_API_KEY=your_africastalking_api_key

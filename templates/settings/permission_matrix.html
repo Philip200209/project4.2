@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Permission Matrix | CRiMAP</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .matrix-cell {
+      text-align: center;
+      vertical-align: middle;
+    }
+    .tooltip-inner {
+      max-width: 200px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">CRiMAP Settings</a>
+    <div class="d-flex">
+      {% if current_user.role == 'admin' %}
+        <a class="nav-link text-white" href="{{ url_for('dashboard_bp.admin_dashboard') }}">Dashboard</a>
+      {% elif current_user.role == 'loan_officer' %}
+        <a class="nav-link text-white" href="{{ url_for('dashboard_bp.officer_dashboard') }}">Dashboard</a>
+      {% elif current_user.role == 'borrower' %}
+        <a class="nav-link text-white" href="{{ url_for('dashboard_bp.borrower_dashboard') }}">Dashboard</a>
+      {% endif %}
+      <a class="nav-link text-white" href="{{ url_for('auth_bp.logout') }}">Logout</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container mt-5">
+  <h3 class="mb-4 text-center">🔐 Role-Permission Matrix</h3>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('settings_bp.update_permissions') }}">
+    <table class="table table-bordered table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Role</th>
+          {% for perm in permissions %}
+            <th class="text-center" data-bs-toggle="tooltip" title="{{ perm.label }}">{{ perm.code }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for role in roles %}
+        <tr>
+          <td><strong>{{ role.name }}</strong></td>
+          {% for perm in permissions %}
+            {% set key = role.id ~ '-' ~ perm.id %}
+            <td class="matrix-cell">
+              <input type="checkbox" name="permissions[{{ key }}]" value="1"
+                {% if role_permissions.get(key) %}checked{% endif %}>
+            </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-success">Save Changes</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>
+</body>
+</html>

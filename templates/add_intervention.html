@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Log Intervention | CRiMAP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-section {
+            max-width: 700px;
+            margin: auto;
+            padding: 2rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">CRiMAP</a>
+            <div class="d-flex">
+                <a class="nav-link text-white" href="{{ url_for('dashboard_bp.officer_dashboard') }}">Dashboard</a>
+                <a class="nav-link text-white" href="{{ url_for('auth_bp.logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Form Section -->
+    <div class="container mt-4">
+        <div class="form-section">
+            <h3 class="text-center mb-4">🛠️ Log Intervention for Loan #{{ loan_id }}</h3>
+
+            <form method="POST" action="{{ url_for('interventions_bp.add_intervention', loan_id=loan_id) }}">
+                <div class="mb-3">
+                    <label for="type" class="form-label">Intervention Type</label>
+                    <select class="form-select" name="type" required>
+                        <option value="">Select type</option>
+                        <option value="call">📞 Phone Call</option>
+                        <option value="visit">🚗 Field Visit</option>
+                        <option value="sms">📩 SMS Reminder</option>

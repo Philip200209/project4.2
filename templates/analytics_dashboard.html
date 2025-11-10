@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - CRIMAP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .analytics-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+        .chart-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .chart-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .nav-links {
+            margin-top: 15px;
+        }
+        .nav-links a {
+            color: #2196f3;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+        .metric-highlight {
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="analytics-container">
+        <div class="header">
+            <h1>📊 Analytics Dashboard</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard_bp.admin_dashboard') }}">← Back to Admin Dashboard</a>
+                <a href="{{ url_for('dashboard_bp.api_dashboard_stats') }}">📈 Raw API Data</a>
+            </div>
+        </div>
+
+        <!-- Overview Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ analytics_data.overview_stats.total_applications }}</div>
+                <div>Total Applications</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #ff9800;">{{ analytics_data.overview_stats.pending }}</div>
+                <div>Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #4caf50;">{{ analytics_data.overview_stats.approved }}</div>
+                <div>Approved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #f44336;">{{ analytics_data.overview_stats.rejected }}</div>
+                <div>Rejected</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">KSh {{ "{:,.0f}".format(analytics_data.overview_stats.avg_loan_amount or 0) }}</div>
+                <div>Avg Loan Amount</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ "{:.1f}%".format(analytics_data.approval_rate) }}</div>
+                <div>Approval Rate</div>
+            </div>
+        </div>
+
+        <!-- Monthly Trends -->
+        <div class="chart-section">
+            <h2>📈 Monthly Application Trends</h2>
+            {% if analytics_data.monthly_trends %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Applications</th>
+                        <th>Average Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for month in analytics_data.monthly_trends %}
+                    <tr>
+                        <td>{{ month.month }}</td>
+                        <td>{{ month.count }}</td>
+                        <td>KSh {{ "{:,.0f}".format(month.avg_amount or 0) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="text-align: center; color: #666; padding: 20px;">No monthly data available</p>
+            {% endif %}
+        </div>
+
+        <!-- Loan Purpose Distribution -->
+        <div class="chart-section">
+            <h2>🎯 Loan Purpose Distribution</h2>
+            {% if analytics_data.purpose_distribution %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Purpose</th>
+                        <th>Count</th>
+                        <th>Average Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purpose in analytics_data.purpose_distribution %}
+                    <tr>
+                        <td>{{ purpose.loan_purpose }}</td>
+                        <td>{{ purpose.count }}</td>
+                        <td>KSh {{ "{:,.0f}".format(purpose.avg_amount or 0) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="text-align: center; color: #666; padding: 20px;">No purpose data available</p>
+            {% endif %}
+        </div>
+
+        <!-- Raw Data Link -->
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('dashboard_bp.api_dashboard_stats') }}" class="btn" 
+               style="background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                📋 View Raw API Data
+            </a>
+        </div>
+    </div>
+</body>
+</html>

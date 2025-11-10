@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - CRIMAP</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .page-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .page-card h1 {
+            color: #212529;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        .page-card p {
+            color: #6c757d;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        .back-btn {
+            background: #4361ee;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        .back-btn:hover {
+            background: #3f37c9;
+            transform: translateY(-2px);
+        }
+        .user-list {
+            text-align: left;
+            max-width: 600px;
+            margin: 30px auto;
+        }
+        .user-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 4px solid #4361ee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-card">
+            <h1>👥 User Management</h1>
+            <p>Manage system users, roles, and permissions</p>
+            <p><strong>Welcome, {{ username }}!</strong></p>
+            <p><strong>Total Users: {{ total_users }}</strong></p>
+            
+            <div class="user-list">
+                {% for user in users %}
+                <div class="user-item">
+                    <strong>{{ user.username }}</strong> - {{ user.role }}<br>
+                    <small>{{ user.email }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <a href="{{ url_for('admin_bp.admin_dashboard') }}" class="back-btn">← Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

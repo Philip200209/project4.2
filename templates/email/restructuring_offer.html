@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #28a745; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f8f9fa; }
+        .offer-box { background: white; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Loan Restructuring Offer</h1>
+        </div>
+        <div class="content">
+            <h2>Dear {{ client_name }},</h2>
+            <p>We have reviewed your loan situation and would like to offer you a restructuring option to better manage your payments.</p>
+            
+            <div class="offer-box">
+                <h3>New Terms Offered:</h3>
+                <p><strong>New Payment Plan:</strong> {{ new_terms.payment_plan }}</p>
+                <p><strong>Extended Term:</strong> {{ new_terms.extended_term }}</p>
+                <p><strong>Reduced Monthly Payment:</strong> KSh {{ "%.2f"|format(new_terms.monthly_payment) }}</p>
+            </div>
+            
+            <p>Please contact us to discuss this offer further.</p>
+        </div>
+    </div>
+</body>
+</html>

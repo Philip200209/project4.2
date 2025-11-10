@@ -1,0 +1,6 @@
+loan_amount,term,income,credit_score,repayment_status,default
+50000,12,60000,720,active,0
+120000,24,45000,580,defaulted,1
+80000,18,70000,650,active,0
+150000,36,40000,550,defaulted,1
+60000,12,90000,690,active,0

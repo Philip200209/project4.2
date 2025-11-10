@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h3>Add New Client</h3>
+  <form method="POST" action="{{ url_for('clients_bp.add_client') }}">
+    <div class="mb-3">
+      <label for="name" class="form-label">Full Name</label>
+      <input type="text" class="form-control" name="name" required>
+    </div>
+    <div class="mb-3">
+      <label for="phone" class="form-label">Phone</label>
+      <input type="text" class="form-control" name="phone" required>
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" class="form-control" name="email">
+    </div>
+    <div class="mb-3">
+      <label for="income" class="form-label">Monthly Income</label>
+      <input type="number" class="form-control" name="income" required>
+    </div>
+    <div class="mb-3">
+      <label for="credit_score" class="form-label">Credit Score</label>
+      <input type="number" class="form-control" name="credit_score" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Client</button>
+    <a href="{{ url_for('clients_bp.view_clients') }}" class="btn btn-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

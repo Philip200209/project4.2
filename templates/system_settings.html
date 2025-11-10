@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - CRIMAP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .settings-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .settings-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .settings-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .settings-nav {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .settings-content {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .settings-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .back-btn {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <div class="settings-header">
+            <h1>⚙️ System Settings</h1>
+            <p>Administrator Control Panel</p>
+        </div>
+
+        <div class="settings-nav">
+            <a href="{{ url_for('dashboard_bp.admin_dashboard') }}" class="back-btn">
+                ← Back to Dashboard
+            </a>
+            
+            <div class="nav-tabs">
+                <a href="{{ url_for('settings_bp.settings') }}" class="nav-tab active">Overview</a>
+                <a href="{{ url_for('settings_bp.role_management') }}" class="nav-tab">Role Management</a>
+                <a href="{{ url_for('settings_bp.security_settings') }}" class="nav-tab">Security</a>
+                <a href="{{ url_for('settings_bp.backup_settings') }}" class="nav-tab">Backup</a>
+                <a href="{{ url_for('settings_bp.system_settings') }}" class="nav-tab">System Info</a>
+            </div>
+        </div>
+
+        <div class="settings-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="settings-section">
+                <h2 class="section-title">Welcome to System Settings</h2>
+                <p>Use the navigation tabs above to manage different aspects of the system.</p>
+                
+                <div style="margin-top: 20px;">
+                    <h3>Quick Actions:</h3>
+                    <div style="display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+                        <a href="{{ url_for('settings_bp.role_management') }}" class="btn btn-primary">
+                            Manage User Roles
+                        </a>
+                        <a href="{{ url_for('settings_bp.security_settings') }}" class="btn btn-primary">
+                            Security Settings
+                        </a>
+                        <a href="{{ url_for('settings_bp.backup_settings') }}" class="btn btn-primary">
+                            Backup & Restore
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="section-title">System Information</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div>
+                        <h4>📊 System Stats</h4>
+                        <p><strong>Total Users:</strong> {{ user_count if user_count else 'Loading...' }}</p>
+                        <p><strong>System Version:</strong> 1.0.0</p>
+                        <p><strong>Status:</strong> <span style="color: green;">●</span> Operational</p>
+                    </div>
+                    <div>
+                        <h4>🔧 Maintenance</h4>
+                        <p>Last Backup: 2024-01-01</p>
+                        <p>Uptime: 99.9%</p>
+                        <p>Support: admin@crimap.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple tab functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Add New User</h3>
+  <form method="POST" action="{{ url_for('users_bp.add_user') }}">
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input type="text" name="username" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" name="password" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="role" class="form-label">Role</label>
+      <select name="role" class="form-select" required>
+        <option value="">-- Select Role --</option>
+        <option value="admin">Admin</option>
+        <option value="loan_officer">Loan Officer</option>
+        <option value="credit_analyst">Credit Analyst</option>
+        <option value="user">User</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-success">Create User</button>
+    <a href="{{ url_for('users_bp.manage_users') }}" class="btn btn-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

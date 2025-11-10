@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Review - CRIMAP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation Header -->
+    <nav class="bg-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-hand-holding-usd text-2xl"></i>
+                    <h1 class="text-xl font-bold">CRIMAP - Loan Management</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-blue-600 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-user mr-1"></i>{{ current_user.username }}
+                    </span>
+                    <!-- FIX: Use correct dashboard endpoint -->
+                    <a href="{{ url_for('dashboard_bp.admin_dashboard') }}" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition duration-200">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-clipboard-check text-blue-600 mr-3"></i>
+                        Loan Review Dashboard
+                    </h2>
+                    <p class="text-gray-600">Review and manage loan applications</p>
+                </div>
+                <div class="flex space-x-4">
+                    <div class="bg-white rounded-lg shadow-sm px-6 py-4 border-l-4 border-blue-500">
+                        <div class="text-2xl font-bold text-gray-800">{{ loans|length }}</div>
+                        <div class="text-gray-600 text-sm">Total Loans</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample Data Warning -->
+        {% if is_sample_data %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-yellow-700">
+                        <span class="font-bold">Demo Mode:</span> Showing sample data. Connect to your database to see real loan applications.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Error Alert -->
+        {% if error %}
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-red-700 font-bold">Error: {{ error }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} bg-{{ 'green' if category == 'success' else 'red' }}-50 border-l-4 border-{{ 'green' if category == 'success' else 'red' }}-400 p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }} text-{{ 'green' if category == 'success' else 'red' }}-400 text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-{{ 'green' if category == 'success' else 'red' }}-700">{{ message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Loans Table -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <!-- Table Header -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-list-alt mr-2"></i>
+                        Loan Applications
+                    </h3>
+                    <div class="flex space-x-2">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition duration-200">
+                            <i class="fas fa-plus mr-2"></i>New Loan
+                        </button>
+                        <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition duration-200">
+                            <i class="fas fa-download mr-2"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Content -->
+            {% if loans %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loan Details</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for loan in loans %}
+                        <tr class="hover:bg-gray-50 transition duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-file-invoice-dollar text-blue-600"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">Loan #{{ loan.id }}</div>
+                                        <div class="text-sm text-gray-500">{{ loan.client_name }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-bold text-gray-900">KSh {{ "{:,.2f}".format(loan.amount) }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-calendar-alt mr-2"></i>
+                                    {{ loan.term }} months
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if loan.raw_status == 'pending' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    {{ loan.status }}
+                                </span>
+                                {% elif loan.raw_status == 'approved' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    {{ loan.status }}
+                                </span>
+                                {% elif loan.raw_status == 'active' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    <i class="fas fa-running mr-2"></i>
+                                    {{ loan.status }}
+                                </span>
+                                {% elif loan.raw_status == 'rejected' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                    <i class="fas fa-times-circle mr-2"></i>
+                                    {{ loan.status }}
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                    {{ loan.status }}
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <i class="far fa-calendar mr-2"></i>
+                                {{ loan.submitted_at }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded text-sm transition duration-200">
+                                        <i class="fas fa-eye mr-1"></i>View
+                                    </button>
+                                    {% if loan.raw_status == 'pending' and current_user.role in ['admin', 'loan_officer'] %}
+                                    <a href="{{ url_for('loan_bp.approve_loan', loan_id=loan.id) }}" 
+                                       class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded text-sm transition duration-200"
+                                       onclick="return confirm('Approve Loan #{{ loan.id }}?')">
+                                        <i class="fas fa-check mr-1"></i>Approve
+                                    </a>
+                                    <a href="{{ url_for('loan_bp.reject_loan', loan_id=loan.id) }}" 
+                                       class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded text-sm transition duration-200"
+                                       onclick="return confirm('Reject Loan #{{ loan.id }}?')">
+                                        <i class="fas fa-times mr-1"></i>Reject
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-12">
+                <div class="mx-auto h-24 w-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-file-invoice-dollar text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No loans found</h3>
+                <p class="text-gray-500 mb-6">There are no loan applications to review at this time.</p>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition duration-200">
+                    <i class="fas fa-plus mr-2"></i>Create New Loan
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Debug Info (remove in production) -->
+        <div class="mt-8 p-4 bg-gray-100 rounded-lg text-sm text-gray-600">
+            <h4 class="font-semibold mb-2">Debug Information:</h4>
+            <p>• Loans loaded: {{ loans|length }}</p>
+            <p>• Sample data: {{ is_sample_data }}</p>
+            <p>• User role: {{ current_user.role }}</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 CRIMAP - Credit Risk Management Platform. Built for Kenyan MFIs & SACCOs.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        console.log('Loan Review page loaded successfully');
+        console.log('Loans data:', {{ loans|tojson }});
+        
+        // Auto-refresh every 30 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

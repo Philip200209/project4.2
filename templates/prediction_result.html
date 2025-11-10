@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Prediction Results - CRIMAP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .results-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            max-width: 900px;
+            width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .risk-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-left: 6px solid;
+            transition: transform 0.3s ease;
+        }
+        .risk-card:hover {
+            transform: translateY(-5px);
+        }
+        .risk-low {
+            border-left-color: #4caf50;
+            background: linear-gradient(135deg, #e8f5e8, #ffffff);
+        }
+        .risk-medium {
+            border-left-color: #ff9800;
+            background: linear-gradient(135deg, #fff3e0, #ffffff);
+        }
+        .risk-high {
+            border-left-color: #f44336;
+            background: linear-gradient(135deg, #ffebee, #ffffff);
+        }
+        .risk-score {
+            font-size: 4em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .risk-level {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .risk-low .risk-score { color: #4caf50; }
+        .risk-medium .risk-score { color: #ff9800; }
+        .risk-high .risk-score { color: #f44336; }
+        .risk-description {
+            color: #666;
+            font-size: 1.1em;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        .input-details {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        .input-details h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+        .detail-item:hover {
+            transform: translateY(-2px);
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .detail-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+        .recommendations {
+            background: #e3f2fd;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 4px solid #2196f3;
+        }
+        .recommendations h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .recommendation-list {
+            list-style: none;
+        }
+        .recommendation-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #bbdefb;
+            display: flex;
+            align-items: flex-start;
+            line-height: 1.4;
+        }
+        .recommendation-list li:last-child {
+            border-bottom: none;
+        }
+        .recommendation-list li::before {
+            content: "•";
+            color: #1976d2;
+            font-weight: bold;
+            font-size: 1.5em;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .btn-primary {
+            background: #2196f3;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+        .btn-warning:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+        }
+        .risk-breakdown {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        .risk-breakdown h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #ffeaa7;
+        }
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="results-container">
+        <div class="header">
+            <h1>🔮 Risk Prediction Results</h1>
+            <p>AI-powered risk assessment for your loan application</p>
+        </div>
+
+        <!-- Risk Assessment Card -->
+        <div class="risk-card risk-{{ result.risk_level.lower() }}">
+            <div class="risk-level">
+                {% if result.risk_level == 'Low' %}
+                    ✅ Low Risk
+                {% elif result.risk_level == 'Medium' %}
+                    ⚠️ Medium Risk
+                {% else %}
+                    🚨 High Risk
+                {% endif %}
+            </div>
+            <div class="risk-score">{{ result.risk_score }}%</div>
+            <div class="risk-description">
+                {% if result.risk_level == 'Low' %}
+                    This loan application appears to be low risk and is recommended for approval with standard terms.
+                {% elif result.risk_level == 'Medium' %}
+                    This application carries moderate risk. Additional verification and monitoring are recommended.
+                {% else %}
+                    High risk detected. Recommend careful review, restructuring, or rejection based on specific circumstances.
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Input Details -->
+        <div class="input-details">
+            <h3>📋 Application Details Analyzed</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Loan Amount</div>
+                    <div class="detail-value">KSh {{ "{:,.2f}".format(result.loan_amount) }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Loan Term</div>
+                    <div class="detail-value">{{ result.loan_term }} months</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Client Income</div>
+                    <div class="detail-value">KSh {{ "{:,.2f}".format(result.client_income) }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Credit Score</div>
+                    <div class="detail-value">{{ result.credit_score }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Employment Status</div>
+                    <div class="detail-value">{{ result.employment_status.title().replace('_', ' ') }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Business Type</div>
+                    <div class="detail-value">{{ result.business_type.title() }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="recommendations">
+            <h3>💡 AI Recommendations</h3>
+            <ul class="recommendation-list">
+                {% for recommendation in result.recommendation %}
+                <li>{{ recommendation }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <a href="{{ url_for('predict_bp.predict_home') }}" class="btn btn-secondary">
+                🔄 New Prediction
+            </a>
+            <a href="{{ url_for('loan_bp.review_loans') }}" class="btn btn-primary">
+                📋 Back to Loan Review
+            </a>
+            {% if result.loan_id %}
+            <a href="{{ url_for('loan_bp.loan_details', loan_id=result.loan_id) }}" class="btn btn-warning">
+                👁️ View Loan Details
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Risk Factors Explanation -->
+        <div class="risk-breakdown">
+            <h4>🔍 How the Risk Score is Calculated:</h4>
+            <div class="breakdown-item">
+                <span>Loan Amount Factor</span>
+                <span>25% weight</span>
+            </div>
+            <div class="breakdown-item">
+                <span>Loan Term Factor</span>
+                <span>20% weight</span>
+            </div>
+            <div class="breakdown-item">
+                <span>Income-to-Loan Ratio</span>
+                <span>30% weight</span>
+            </div>
+            <div class="breakdown-item">
+                <span>Credit Score Factor</span>
+                <span>15% weight</span>
+            </div>
+            <div class="breakdown-item">
+                <span>Employment Status</span>
+                <span>10% weight</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const riskCard = document.querySelector('.risk-card');
+            riskCard.style.opacity = '0';
+            riskCard.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                riskCard.style.transition = 'all 0.5s ease';
+                riskCard.style.opacity = '1';
+                riskCard.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

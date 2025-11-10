@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assign Officer | CRiMAP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Assign Loan {{ loan_id }} to Officer</h2>
+
+        <form method="POST" action="{{ url_for('loans_bp.assign_officer', loan_id=loan_id) }}">
+            <div class="form-group">
+                <label for="officer_id">Select Officer</label>
+                <select name="officer_id" id="officer_id" class="form-control">
+                    {% for officer in officers %}
+                        <option value="{{ officer.id }}">{{ officer.username }} ({{ officer.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-success mt-2">Assign</button>
+        </form>
+    </div>
+</body>
+</html>

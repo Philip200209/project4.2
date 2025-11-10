@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Eligibility Prediction - CRIMAP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .risk-badge {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid transparent;
+        }
+        .risk-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .risk-warning { background-color: #fff3cd; color: #856404; border-color: #ffeaa7; }
+        .risk-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        
+        .score-bar {
+            width: 100%;
+            height: 25px;
+            background-color: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .score-fill {
+            height: 100%;
+            transition: width 0.8s ease;
+        }
+        .score-success { background: linear-gradient(90deg, #28a745, #20c997); }
+        .score-warning { background: linear-gradient(90deg, #ffc107, #fd7e14); }
+        .score-danger { background: linear-gradient(90deg, #dc3545, #e83e8c); }
+        
+        .suggestion-box {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">CRIMAP</a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    Welcome, {{ username }}
+                </span>
+                <a class="nav-link" href="/borrower-dashboard">Dashboard</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">📊 Loan Eligibility Predictor</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Prediction Form -->
+                        <form method="POST" action="/prediction">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="loan_amount" class="form-label">Loan Amount Requested (KSh)</label>
+                                        <input type="number" class="form-control" id="loan_amount" name="loan_amount" 
+                                               value="{{ form_data.loan_amount if form_data else '50000' }}" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="monthly_income" class="form-label">Monthly Income (KSh)</label>
+                                        <input type="number" class="form-control" id="monthly_income" name="monthly_income" 
+                                               value="{{ form_data.monthly_income if form_data else '0' }}" required>
+                                        <div class="form-text">Enter 0 if unemployed</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="employment_status" class="form-label">Employment Status</label>
+                                        <select class="form-select" id="employment_status" name="employment_status" required>
+                                            <option value="Employed" {{ 'selected' if (form_data and form_data.employment_status == 'Employed') or not form_data else '' }}>Employed</option>
+                                            <option value="Self-Employed" {{ 'selected' if form_data and form_data.employment_status == 'Self-Employed' else '' }}>Self-Employed</option>
+                                            <option value="Unemployed" {{ 'selected' if (form_data and form_data.employment_status == 'Unemployed') or not form_data else '' }}>Unemployed</option>
+                                            <option value="Student" {{ 'selected' if form_data and form_data.employment_status == 'Student' else '' }}>Student</option>
+                                            <option value="Retired" {{ 'selected' if form_data and form_data.employment_status == 'Retired' else '' }}>Retired</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="existing_debt" class="form-label">Existing Monthly Debt (KSh)</label>
+                                        <input type="number" class="form-control" id="existing_debt" name="existing_debt" 
+                                               value="{{ form_data.existing_debt if form_data else '0' }}" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="credit_history" class="form-label">Credit History (months)</label>
+                                        <input type="number" class="form-control" id="credit_history" name="credit_history" 
+                                               value="{{ form_data.credit_history if form_data else '0' }}" required>
+                                        <div class="form-text">How long you've had credit facilities</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    🎯 Check Eligibility
+                                </button>
+                            </div>
+                        </form>
+
+                        <hr>
+
+                        <!-- Prediction Results -->
+                        {% if show_result %}
+                        <div class="prediction-result mt-4">
+                            <div class="risk-badge risk-{{ risk_level }}">
+                                <h3 class="mb-2">{{ risk_category }}</h3>
+                                <p class="mb-0">{{ recommendation }}</p>
+                            </div>
+                            
+                            <div class="score-display">
+                                <h5>Eligibility Score: {{ score }}%</h5>
+                                <div class="score-bar">
+                                    <div class="score-fill score-{{ risk_level }}" style="width: {{ score }}%"></div>
+                                </div>
+                            </div>
+                            
+                            {% if risk_level == "danger" %}
+                            <div class="suggestion-box">
+                                <h6>💡 Suggestions to Improve Your Eligibility:</h6>
+                                <ul class="mb-0">
+                                    <li>Consider applying for a smaller loan amount</li>
+                                    <li>Provide additional collateral or security</li>
+                                    <li>Add a co-signer with stable income</li>
+                                    <li>Build your credit history with smaller loans first</li>
+                                    <li>Wait until you have stable employment</li>
+                                </ul>
+                            </div>
+                            {% elif risk_level == "warning" %}
+                            <div class="suggestion-box">
+                                <h6>💡 Tips for Better Approval Chances:</h6>
+                                <ul class="mb-0">
+                                    <li>Provide proof of stable income</li>
+                                    <li>Reduce your existing debt where possible</li>
+                                    <li>Consider a slightly smaller loan amount</li>
+                                    <li>Be prepared to provide additional documentation</li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="mt-4">
+                                <small class="text-muted">
+                                    <strong>Disclaimer:</strong> This is a predictive assessment based on the information provided. 
+                                    Final approval is subject to additional verification and credit committee review.
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Test Scenarios -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">🧪 Quick Test Scenarios</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-2">Test different risk profiles:</p>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body p-3">
+                                        <small><strong>High Risk:</strong> Unemployed, KSh 80,000</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body p-3">
+                                        <small><strong>Medium Risk:</strong> Self-Employed, KSh 50,000</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body p-3">
+                                        <small><strong>Low Risk:</strong> Employed, KSh 30,000, Income KSh 60,000</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

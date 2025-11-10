@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loan Details | CRiMAP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Loan Details</h2>
+        <table class="table table-bordered">
+            <tr><th>Loan ID</th><td>{{ loan.id }}</td></tr>
+            <tr><th>Client ID</th><td>{{ loan.client_id }}</td></tr>
+            <tr><th>Amount</th><td>{{ loan.amount }} KES</td></tr>
+            <tr><th>Term</th><td>{{ loan.term }} months</td></tr>
+            <tr><th>Status</th><td>{{ loan.status }}</td></tr>
+            <tr><th>Region</th><td>{{ loan.region }}</td></tr>
+            <tr><th>Submitted At</th><td>{{ loan.submitted_at.strftime('%Y-%m-%d') }}</td></tr>
+        </table>
+
+        <a href="{{ url_for('loans_bp.repayment_history', loan_id=loan.id) }}" class="btn btn-info">View Repayment History</a>
+        <a href="{{ url_for('alerts_bp.view_alerts', client_id=loan.client_id) }}" class="btn btn-warning">View Alerts</a>
+        <a href="{{ url_for('interventions_bp.log', loan_id=loan.id) }}" class="btn btn-secondary">Log Intervention</a>
+    </div>
+</body>
+</html>

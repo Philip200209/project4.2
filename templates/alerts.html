@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts & Notifications - Loan Management System</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .alerts-container {
+            padding: 20px;
+        }
+        
+        .alert-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-group select, .filter-group button {
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+        }
+        
+        .filter-group button {
+            background: #4361ee;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .alerts-grid {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .alert-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #f59e0b;
+            transition: transform 0.2s;
+        }
+        
+        .alert-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .alert-card.high {
+            border-left-color: #ef4444;
+        }
+        
+        .alert-card.medium {
+            border-left-color: #f59e0b;
+        }
+        
+        .alert-card.low {
+            border-left-color: #4ade80;
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .alert-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .alert-priority {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .priority-high {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .priority-medium {
+            background: #fffbeb;
+            color: #d97706;
+        }
+        
+        .priority-low {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .alert-actions button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .btn-resolve {
+            background: #4ade80;
+            color: white;
+        }
+        
+        .btn-ignore {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-view {
+            background: #4361ee;
+            color: white;
+        }
+        
+        .no-alerts {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-alert {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-alert.high {
+            border-top: 4px solid #ef4444;
+        }
+        
+        .stat-alert.medium {
+            border-top: 4px solid #f59e0b;
+        }
+        
+        .stat-alert.low {
+            border-top: 4px solid #4ade80;
+        }
+        
+        .stat-alert.total {
+            border-top: 4px solid #4361ee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-hand-holding-usd"></i>
+                <h1>Loan Management</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/dashboard/admin"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="/admin/view_users"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="/clients"><i class="fas fa-user-friends"></i> Clients</a></li>
+                <li><a href="/loans/review"><i class="fas fa-file-invoice-dollar"></i> Loans</a></li>
+                <li><a href="/risk"><i class="fas fa-chart-line"></i> Risk Analytics</a></li>
+                <li><a href="/predict/"><i class="fas fa-brain"></i> Predictions</a></li>
+                <li><a href="/interventions/"><i class="fas fa-comments"></i> Interventions</a></li>
+                <li><a href="/alerts/" class="active"><i class="fas fa-bell"></i> Alerts</a></li>
+                <li><a href="/analytics/"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="/audit/logs"><i class="fas fa-shield-alt"></i> Audit</a></li>
+                <li><a href="/settings/system-settings"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2><i class="fas fa-bell"></i> Alerts & Notifications</h2>
+                <div class="user-info">
+                    <div class="role-badge">Admin</div>
+                    <div class="user-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <span>Alerts Center</span>
+                </div>
+            </div>
+
+            <!-- Alert Statistics -->
+            <div class="stats-overview">
+                <div class="stat-alert total">
+                    <h3>Total Alerts</h3>
+                    <div class="count" style="font-size: 32px; font-weight: bold; color: #4361ee;">12</div>
+                    <div class="trend">Active notifications</div>
+                </div>
+                <div class="stat-alert high">
+                    <h3>High Priority</h3>
+                    <div class="count" style="font-size: 32px; font-weight: bold; color: #ef4444;">3</div>
+                    <div class="trend">Requires immediate action</div>
+                </div>
+                <div class="stat-alert medium">
+                    <h3>Medium Priority</h3>
+                    <div class="count" style="font-size: 32px; font-weight: bold; color: #f59e0b;">5</div>
+                    <div class="trend">Review needed</div>
+                </div>
+                <div class="stat-alert low">
+                    <h3>Low Priority</h3>
+                    <div class="count" style="font-size: 32px; font-weight: bold; color: #4ade80;">4</div>
+                    <div class="trend">Informational</div>
+                </div>
+            </div>
+
+            <!-- Alert Filters -->
+            <div class="alert-filters">
+                <h3><i class="fas fa-filter"></i> Filter Alerts</h3>
+                <div class="filter-group">
+                    <select id="priority-filter">
+                        <option value="all">All Priorities</option>
+                        <option value="high">High Priority</option>
+                        <option value="medium">Medium Priority</option>
+                        <option value="low">Low Priority</option>
+                    </select>
+                    
+                    <select id="type-filter">
+                        <option value="all">All Types</option>
+                        <option value="risk">Risk Alerts</option>
+                        <option value="payment">Payment Alerts</option>
+                        <option value="system">System Alerts</option>
+                        <option value="compliance">Compliance Alerts</option>
+                    </select>
+                    
+                    <select id="status-filter">
+                        <option value="all">All Status</option>
+                        <option value="new">New</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                    
+                    <button onclick="applyFilters()">
+                        <i class="fas fa-search"></i> Apply Filters
+                    </button>
+                    
+                    <button onclick="clearFilters()" style="background: #6c757d;">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alerts Grid -->
+            <div class="alerts-grid" id="alerts-container">
+                <!-- Alerts will be loaded here -->
+                <div class="no-alerts" id="no-alerts">
+                    <i class="fas fa-bell-slash" style="font-size: 48px; margin-bottom: 15px; color: #6c757d;"></i>
+                    <h3>No Alerts Found</h3>
+                    <p>There are no alerts matching your current filters.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample alerts data
+        const sampleAlerts = [
+            {
+                id: 1,
+                title: "High Risk Loan Application Detected",
+                description: "Loan application #LA-2024-001 has been flagged as high risk with 85% probability of default.",
+                priority: "high",
+                type: "risk",
+                status: "new",
+                timestamp: "2024-01-15 14:30:00",
+                loanId: "LA-2024-001",
+                clientName: "John Doe"
+            },
+            {
+                id: 2,
+                title: "Missed Payment - 7 Days Overdue",
+                description: "Client Maria Garcia has missed payment for loan #LA-2023-045. Amount due: $1,250.00",
+                priority: "high",
+                type: "payment",
+                status: "new",
+                timestamp: "2024-01-15 10:15:00",
+                loanId: "LA-2023-045",
+                clientName: "Maria Garcia"
+            },
+            {
+                id: 3,
+                title: "System Backup Completed",
+                description: "Nightly system backup completed successfully. All data secured.",
+                priority: "low",
+                type: "system",
+                status: "resolved",
+                timestamp: "2024-01-15 06:00:00"
+            },
+            {
+                id: 4,
+                title: "Medium Risk Application Review",
+                description: "Loan application #LA-2024-002 requires manual review. Risk score: 65%",
+                priority: "medium",
+                type: "risk",
+                status: "in-progress",
+                timestamp: "2024-01-14 16:45:00",
+                loanId: "LA-2024-002",
+                clientName: "Robert Smith"
+            }
+        ];
+
+        // Load alerts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAlerts();
+        });
+
+        function loadAlerts() {
+            const container = document.getElementById('alerts-container');
+            const noAlerts = document.getElementById('no-alerts');
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Add sample alerts
+            sampleAlerts.forEach(alert => {
+                const alertCard = createAlertCard(alert);
+                container.appendChild(alertCard);
+            });
+            
+            // Show/hide no alerts message
+            noAlerts.style.display = sampleAlerts.length > 0 ? 'none' : 'block';
+        }
+
+        function createAlertCard(alert) {
+            const card = document.createElement('div');
+            card.className = `alert-card ${alert.priority}`;
+            
+            const priorityClass = `priority-${alert.priority}`;
+            const priorityText = alert.priority.charAt(0).toUpperCase() + alert.priority.slice(1);
+            
+            card.innerHTML = `
+                <div class="alert-header">
+                    <div>
+                        <div class="alert-title">${alert.title}</div>
+                        <div class="alert-meta">
+                            <span><i class="fas fa-clock"></i> ${alert.timestamp}</span>
+                            <span class="alert-priority ${priorityClass}">${priorityText} Priority</span>
+                            <span><i class="fas fa-tag"></i> ${alert.type}</span>
+                        </div>
+                    </div>
+                    <div class="alert-status">${alert.status}</div>
+                </div>
+                <div class="alert-description">
+                    ${alert.description}
+                    ${alert.loanId ? `<br><small><strong>Loan ID:</strong> ${alert.loanId}</small>` : ''}
+                    ${alert.clientName ? `<br><small><strong>Client:</strong> ${alert.clientName}</small>` : ''}
+                </div>
+                <div class="alert-actions">
+                    <button class="btn-resolve" onclick="resolveAlert(${alert.id})">
+                        <i class="fas fa-check"></i> Resolve
+                    </button>
+                    <button class="btn-view" onclick="viewDetails(${alert.id})">
+                        <i class="fas fa-eye"></i> View Details
+                    </button>
+                    <button class="btn-ignore" onclick="ignoreAlert(${alert.id})">
+                        <i class="fas fa-times"></i> Ignore
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function applyFilters() {
+            // Filter logic would go here
+            console.log('Applying filters...');
+            alert('Filter functionality would be implemented here');
+        }
+
+        function clearFilters() {
+            document.getElementById('priority-filter').value = 'all';
+            document.getElementById('type-filter').value = 'all';
+            document.getElementById('status-filter').value = 'all';
+            loadAlerts();
+        }
+
+        function resolveAlert(alertId) {
+            if (confirm('Mark this alert as resolved?')) {
+                console.log(`Resolving alert ${alertId}`);
+                alert(`Alert ${alertId} marked as resolved`);
+            }
+        }
+
+        function viewDetails(alertId) {
+            console.log(`Viewing details for alert ${alertId}`);
+            alert(`Viewing details for alert ${alertId}`);
+        }
+
+        function ignoreAlert(alertId) {
+            if (confirm('Ignore this alert?')) {
+                console.log(`Ignoring alert ${alertId}`);
+                alert(`Alert ${alertId} ignored`);
+            }
+        }
+    </script>
+</body>
+</html>

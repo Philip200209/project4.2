@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Manage Users</h3>
+
+  <div class="mb-3 text-end">
+    <a href="{{ url_for('users_bp.add_user') }}" class="btn btn-primary">➕ Add User</a>
+  </div>
+
+  <table class="table table-bordered table-striped">
+    <thead class="table-light">
+      <tr>
+        <th>#</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.username }}</td>
+        <td>
+          <span class="badge {% if user.role == 'admin' %}bg-primary{% elif user.role == 'loan_officer' %}bg-success{% else %}bg-secondary{% endif %}">
+            {{ user.role|capitalize }}
+          </span>
+        </td>
+        <td>
+          <a href="{{ url_for('users_bp.edit_user', user_id=user.id) }}" class="btn btn-sm btn-info">Edit</a>
+          <a href="{{ url_for('users_bp.delete_user', user_id=user.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

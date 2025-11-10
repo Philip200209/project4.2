@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Testing - CRIMAP</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f72585;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        .btn { display: inline-block; padding: 12px 24px; background: var(--primary); color: white; text-decoration: none; border-radius: 6px; margin: 5px; transition: all 0.3s; border: none; cursor: pointer; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3); }
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--warning); }
+        .btn-danger { background: var(--danger); }
+        .test-section { margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+        .client-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px; }
+        .client-card { background: white; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1><i class="fas fa-envelope"></i> Email System Testing</h1>
+            <p>Test the CRIMAP email notification system</p>
+            <p><strong>Welcome, {{ username }}!</strong></p>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-play-circle"></i> Quick Tests</h2>
+            
+            <div class="test-section">
+                <h3>Comprehensive Test</h3>
+                <p>Run all email tests with sample data</p>
+                <button class="btn btn-success" onclick="runComprehensiveTest()">
+                    <i class="fas fa-bolt"></i> Run Complete Test
+                </button>
+            </div>
+
+            <div class="test-section">
+                <h3>Individual Email Tests</h3>
+                <p>Test specific email types</p>
+                <button class="btn" onclick="sendTestEmail('reminder')">
+                    <i class="fas fa-bell"></i> Test Payment Reminder
+                </button>
+                <button class="btn btn-warning" onclick="sendTestEmail('risk-alert')">
+                    <i class="fas fa-exclamation-triangle"></i> Test Risk Alert
+                </button>
+                <button class="btn btn-danger" onclick="sendTestEmail('restructuring')">
+                    <i class="fas fa-exchange-alt"></i> Test Restructuring Offer
+                </button>
+            </div>
+
+            <div class="test-section">
+                <h3>Intervention System</h3>
+                <p>Test automated intervention checks</p>
+                <button class="btn" onclick="testInterventions()">
+                    <i class="fas fa-robot"></i> Run Interventions
+                </button>
+            </div>
+        </div>
+
+        {% if test_clients %}
+        <div class="card">
+            <h2><i class="fas fa-users"></i> Test Clients ({{ total_test_clients }})</h2>
+            <div class="client-list">
+                {% for client in test_clients %}
+                <div class="client-card">
+                    <h4>{{ client.name }}</h4>
+                    <p><strong>Email:</strong> {{ client.email }}</p>
+                    <p><strong>Income:</strong> KSh {{ "%.2f"|format(client.income) }}</p>
+                    <p><strong>Credit Score:</strong> {{ client.credit_score }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <h2><i class="fas fa-terminal"></i> Test Results</h2>
+            <div id="testResults" style="background: #f8f9fa; padding: 15px; border-radius: 6px; min-height: 100px; font-family: monospace;">
+                Results will appear here...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runComprehensiveTest() {
+            showResult("🔄 Running comprehensive email system test...");
+            fetch('/test-email-system')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showResult("✅ Test completed successfully!");
+                        data.results.forEach(result => {
+                            showResult(result);
+                        });
+                    } else {
+                        showResult("❌ Test failed: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    showResult("❌ Error: " + error);
+                });
+        }
+
+        function sendTestEmail(emailType) {
+            showResult(`🔄 Sending ${emailType} email...`);
+            fetch(`/send-test-email/${emailType}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showResult(`✅ ${data.message}`);
+                        showResult(`   Recipient: ${data.recipient}`);
+                    } else {
+                        showResult(`❌ Failed: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    showResult("❌ Error: " + error);
+                });
+        }
+
+        function testInterventions() {
+            showResult("🔄 Running intervention system...");
+            fetch('/test-interventions')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showResult("✅ " + data.message);
+                    } else {
+                        showResult("❌ " + data.message);
+                    }
+                })
+                .catch(error => {
+                    showResult("❌ Error: " + error);
+                });
+        }
+
+        function showResult(message) {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML += message + '<br>';
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        // Clear results on page load
+        document.getElementById('testResults').innerHTML = 'Ready for testing...<br>';
+    </script>
+</body>
+</html>

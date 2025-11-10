@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Loan - CRIMAP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header">
+                <h1><i class="fas fa-plus-circle"></i> Add New Loan Application</h1>
+                <p class="lead">Create a new loan application for a client</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Loan Application Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('loan_bp.add_loan') }}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="client_id">Select Client *</label>
+                                    <select class="form-control" id="client_id" name="client_id" required>
+                                        <option value="">Choose a client...</option>
+                                        {% for client in clients %}
+                                        <option value="{{ client.id }}">
+                                            {{ client.first_name }} {{ client.last_name }} - {{ client.id_number }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="loan_amount">Loan Amount (KES) *</label>
+                                    <input type="number" class="form-control" id="loan_amount" name="loan_amount" 
+                                           min="1000" step="1000" required placeholder="Enter loan amount">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="purpose">Loan Purpose *</label>
+                                    <select class="form-control" id="purpose" name="purpose" required>
+                                        <option value="">Select purpose...</option>
+                                        <option value="Business Expansion">Business Expansion</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Emergency">Emergency</option>
+                                        <option value="Home Improvement">Home Improvement</option>
+                                        <option value="Medical">Medical</option>
+                                        <option value="Personal">Personal</option>
+                                        <option value="Vehicle Purchase">Vehicle Purchase</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="term_months">Loan Term (Months) *</label>
+                                    <select class="form-control" id="term_months" name="term_months" required>
+                                        <option value="">Select term...</option>
+                                        <option value="3">3 Months</option>
+                                        <option value="6">6 Months</option>
+                                        <option value="12">12 Months</option>
+                                        <option value="24">24 Months</option>
+                                        <option value="36">36 Months</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Additional Notes (Optional)</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="3" placeholder="Any additional information about this loan application"></textarea>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> Submit Application
+                            </button>
+                            <a href="{{ url_for('loan_bp.manage_loans') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-info-circle"></i> Quick Tips</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">✓ Ensure client information is complete</li>
+                        <li class="mb-2">✓ Verify loan amount is appropriate</li>
+                        <li class="mb-2">✓ Select the correct loan purpose</li>
+                        <li class="mb-2">✓ Choose appropriate loan term</li>
+                        <li class="mb-2">✓ Application will go through risk assessment</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

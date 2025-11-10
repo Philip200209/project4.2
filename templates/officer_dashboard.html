@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Officer Dashboard - CRIMAP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dashboard-header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .dashboard-header h1 i {
+            color: #3498db;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-text {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Dashboard Stats */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.total::before { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .stat-card.pending::before { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .stat-card.approved::before { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .stat-card.rejected::before { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+
+        .stat-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .total .stat-icon { color: #3498db; }
+        .pending .stat-icon { color: #f39c12; }
+        .approved .stat-icon { color: #27ae60; }
+        .rejected .stat-icon { color: #e74c3c; }
+
+        .stat-card h3 {
+            color: #2c3e50;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-number {
+            font-size: 2.8em;
+            font-weight: 800;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-description {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .quick-actions h2 {
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quick-actions h2 i {
+            color: #3498db;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .action-btn i {
+            font-size: 1.5em;
+        }
+
+        .action-btn.review { background: linear-gradient(135deg, #f39c12, #e67e22); box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3); }
+        .action-btn.review:hover { box-shadow: 0 10px 25px rgba(243, 156, 18, 0.4); }
+
+        .action-btn.approve { background: linear-gradient(135deg, #27ae60, #2ecc71); box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3); }
+        .action-btn.approve:hover { box-shadow: 0 10px 25px rgba(39, 174, 96, 0.4); }
+
+        .action-btn.reports { background: linear-gradient(135deg, #9b59b6, #8e44ad); box-shadow: 0 5px 15px rgba(155, 89, 182, 0.3); }
+        .action-btn.reports:hover { box-shadow: 0 10px 25px rgba(155, 89, 182, 0.4); }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 20px;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2em;
+            }
+            
+            .stat-card {
+                padding: 20px 15px;
+            }
+            
+            .stat-number {
+                font-size: 2.2em;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <div class="dashboard-header">
+            <h1>
+                <i class="fas fa-tachometer-alt"></i>
+                Loan Officer Dashboard
+            </h1>
+            <p class="welcome-text">Welcome back, <strong>{{ username }}</strong></p>
+            <div class="user-badge">
+                <i class="fas fa-user-shield"></i>
+                Loan Officer
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="dashboard-stats">
+            <div class="stat-card total">
+                <i class="fas fa-file-invoice-dollar stat-icon"></i>
+                <h3>Total Loan Applications</h3>
+                <div class="stat-number">{{ total_loans }}</div>
+                <p class="stat-description">All submitted applications</p>
+            </div>
+            
+            <div class="stat-card pending">
+                <i class="fas fa-clock stat-icon"></i>
+                <h3>Pending Review</h3>
+                <div class="stat-number">{{ pending_loans }}</div>
+                <p class="stat-description">Awaiting your decision</p>
+            </div>
+            
+            <div class="stat-card approved">
+                <i class="fas fa-check-circle stat-icon"></i>
+                <h3>Approved Loans</h3>
+                <div class="stat-number">{{ approved_loans }}</div>
+                <p class="stat-description">Successfully approved</p>
+            </div>
+            
+            <div class="stat-card rejected">
+                <i class="fas fa-times-circle stat-icon"></i>
+                <h3>Rejected Loans</h3>
+                <div class="stat-number">{{ rejected_loans }}</div>
+                <p class="stat-description">Not approved</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div class="quick-actions">
+            <h2>
+                <i class="fas fa-bolt"></i>
+                Quick Actions
+            </h2>
+            <div class="action-buttons">
+                <a href="/loans" class="action-btn review">
+                    <i class="fas fa-search-dollar"></i>
+                    Review Applications
+                </a>
+                <a href="/risk-analytics" class="action-btn approve">
+                    <i class="fas fa-chart-line"></i>
+                    Risk Analysis
+                </a>
+                <a href="/clients" class="action-btn">
+                    <i class="fas fa-users"></i>
+                    Manage Clients
+                </a>
+                <a href="/reports" class="action-btn reports">
+                    <i class="fas fa-chart-bar"></i>
+                    Generate Reports
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add subtle animations to stat cards on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
