@@ -68,7 +68,7 @@
                         <span class="me-3">Welcome, <strong>{{ username }}</strong></span>
                         <div class="btn-group me-2">
                             <a href="/test-behavior" class="btn btn-sm btn-outline-primary">Run Test</a>
-                            <a href="/api/behavior-check" class="btn btn-sm btn-outline-success" onclick="return confirm('Run behavior check?')">Check Payments</a>
+                            <a href="{{ url_for('behavior_check') }}" class="btn btn-sm btn-outline-success" onclick="return confirm('Run behavior check?')">Check Payments</a>
                         </div>
                     </div>
                 </div>
@@ -215,7 +215,7 @@
                                 <a href="/test-behavior" class="btn btn-outline-primary btn-sm w-100 mb-2">
                                     🧪 Run Behavior Test
                                 </a>
-                                <a href="/api/behavior-check" class="btn btn-outline-success btn-sm w-100 mb-2" 
+                                <a href="{{ url_for('behavior_check') }}" class="btn btn-outline-success btn-sm w-100 mb-2" 
                                    onclick="return confirm('Run missed payment check?')">
                                     🔍 Check Missed Payments
                                 </a>

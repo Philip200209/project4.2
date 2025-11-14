@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRB Dashboard - CRIMAP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #007bff;
+        }
+        .metric-card.danger {
+            border-left-color: #dc3545;
+        }
+        .metric-card.warning {
+            border-left-color: #ffc107;
+        }
+        .metric-card.success {
+            border-left-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-credit-card"></i> CRB Monitoring Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    <i class="fas fa-user"></i> {{ username }}
+                </span>
+                <a class="nav-link" href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-header">
+        <div class="container">
+            <h1><i class="fas fa-shield-alt"></i> CRB Credit Monitoring</h1>
+            <p class="lead">Comprehensive credit bureau reporting and analysis</p>
+        </div>
+    </div>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Key Metrics -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="metric-card">
+                    <h3>{{ total_checks }}</h3>
+                    <p>Total CRB Checks</p>
+                    <small>All time credit reports</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-card danger">
+                    <h3>{{ blacklisted }}</h3>
+                    <p>Blacklisted Applicants</p>
+                    <small>Automatic rejections</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-card warning">
+                    <h3>{{ high_risk }}</h3>
+                    <p>High Risk Profiles</p>
+                    <small>Credit score below 550</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-pie"></i> Credit Score Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="scoreChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list"></i> Recent CRB Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_reports %}
+                            <div class="list-group">
+                                {% for report in recent_reports %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">ID: {{ report.national_id }}</h6>
+                                        <small class="text-{% if report.credit_score >= 700 %}success{% elif report.credit_score >= 600 %}warning{% else %}danger{% endif %}">
+                                            Score: {{ report.credit_score }}
+                                        </small>
+                                    </div>
+                                    <p class="mb-1">
+                                        Status: 
+                                        <span class="badge bg-{% if report.blacklist_status %}danger{% else %}success{% endif %}">
+                                            {{ 'Blacklisted' if report.blacklist_status else 'Clear' }}
+                                        </span>
+                                    </p>
+                                    <small>Checked: {{ report.created_at.strftime('%Y-%m-%d') }}</small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No CRB reports available</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="{{ url_for('loans_page') }}" class="btn btn-primary me-2">
+                            <i class="fas fa-eye"></i> View All Loans
+                        </a>
+                        <a href="{{ url_for('risk_analyst_dashboard') }}" class="btn btn-warning me-2">
+                            <i class="fas fa-analytics"></i> Risk Analytics
+                        </a>
+                        <a href="/api/crb-stats" class="btn btn-info" target="_blank">
+                            <i class="fas fa-chart-bar"></i> View API Stats
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Credit Score Distribution Chart
+        const ctx = document.getElementById('scoreChart').getContext('2d');
+        const scoreChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Excellent (750+)', 'Good (700-749)', 'Fair (600-699)', 'Poor (500-599)', 'Very Poor (<500)'],
+                datasets: [{
+                    data: [
+                        {{ score_ranges.excellent }},
+                        {{ score_ranges.good }},
+                        {{ score_ranges.fair }},
+                        {{ score_ranges.poor }},
+                        {{ score_ranges.very_poor }}
+                    ],
+                    backgroundColor: [
+                        '#28a745',
+                        '#20c997',
+                        '#ffc107',
+                        '#fd7e14',
+                        '#dc3545'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

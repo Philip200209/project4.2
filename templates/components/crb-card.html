@@ -1,0 +1,114 @@
+<div class="col-md-4">
+    <div class="card crb-monitoring-card text-white">
+        <div class="card-body text-center position-relative">
+            <!-- Animated Background Elements -->
+            <div class="crb-background-elements">
+                <div class="crb-circle crb-circle-1"></div>
+                <div class="crb-circle crb-circle-2"></div>
+                <div class="crb-circle crb-circle-3"></div>
+            </div>
+            
+            <!-- Main Icon -->
+            <div class="crb-icon-container mb-3">
+                <i class="fas fa-shield-alt crb-main-icon"></i>
+                <div class="crb-icon-pulse"></div>
+            </div>
+            
+            <!-- Title -->
+            <h4 class="card-title crb-title mb-2">
+                <i class="fas fa-search me-2"></i>
+                CRB Monitoring
+            </h4>
+            
+            <!-- Description -->
+            <p class="card-text crb-description mb-3">
+                Comprehensive credit reference bureau checks and risk assessment
+            </p>
+            
+            <!-- Quick Stats -->
+            <div class="crb-stats-container mb-3">
+                <div class="row g-2">
+                    <div class="col-4">
+                        <div class="crb-stat-item">
+                            <div class="crb-stat-number">{{ total_checks if total_checks is defined else '0' }}</div>
+                            <div class="crb-stat-label">Total</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="crb-stat-item">
+                            <div class="crb-stat-number text-warning">{{ blacklisted if blacklisted is defined else '0' }}</div>
+                            <div class="crb-stat-label">Blacklisted</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="crb-stat-item">
+                            <div class="crb-stat-number text-danger">{{ high_risk if high_risk is defined else '0' }}</div>
+                            <div class="crb-stat-label">High Risk</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="crb-progress-container mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <small>Risk Assessment</small>
+                    <small>
+                        {% if total_checks and total_checks > 0 %}
+                            {{ ((high_risk|default(0) / total_checks) * 100)|round|int }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </small>
+                </div>
+                <div class="progress crb-progress" style="height: 6px;">
+                    <div class="progress-bar bg-warning" 
+                         role="progressbar" 
+                         style="width: {% if total_checks and total_checks > 0 %}{{ ((high_risk|default(0) / total_checks) * 100)|round|int }}%{% else %}0%{% endif %}"
+                         aria-valuenow="{% if total_checks and total_checks > 0 %}{{ ((high_risk|default(0) / total_checks) * 100)|round|int }}{% else %}0{% endif %}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Button -->
+            <div class="crb-action-container">
+                <a href="{{ url_for('crb_dashboard') }}" class="btn btn-light btn-lg crb-action-btn">
+                    <i class="fas fa-external-link-alt me-2"></i>
+                    Open CRB Dashboard
+                    <i class="fas fa-arrow-right ms-2 crb-btn-arrow"></i>
+                </a>
+                
+                <!-- Quick Actions -->
+                <div class="crb-quick-actions mt-2">
+                    <small class="text-white-50 me-2">Quick:</small>
+                    <a href="{{ url_for('crb_dashboard', action='new_check') }}" class="btn btn-sm btn-outline-light me-1" title="New Check">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                    <a href="{{ url_for('crb_dashboard', filter='blacklisted') }}" class="btn btn-sm btn-outline-light me-1" title="Blacklisted">
+                        <i class="fas fa-ban"></i>
+                    </a>
+                    <a href="{{ url_for('crb_dashboard', filter='high_risk') }}" class="btn btn-sm btn-outline-light" title="High Risk">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Status Indicator -->
+            <div class="crb-status-indicator">
+                <span class="crb-status-dot {% if total_checks and total_checks > 0 %}status-active{% else %}status-inactive{% endif %}"></span>
+                <small class="crb-status-text">
+                    {% if total_checks and total_checks > 0 %}
+                        System Active - {{ total_checks }} checks
+                    {% else %}
+                        Ready for checks
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+        
+        <!-- Hover Effect Overlay -->
+        <div class="crb-hover-overlay"></div>
+    </div>
+</div>

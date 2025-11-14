@@ -5,18 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Officer Dashboard - CRIMAP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --info: #118ab2;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --border-radius: 16px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 20px 50px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.03"><polygon fill="white" points="0,1000 1000,1000 1000,0"/></svg>');
+            pointer-events: none;
+            z-index: -1;
         }
 
         .dashboard-container {
@@ -24,52 +56,78 @@
             margin: 0 auto;
         }
 
+        /* Header Styles */
         .dashboard-header {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 30px 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
             margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(114, 9, 183, 0.05) 100%);
+            border-radius: 50%;
+            transform: translate(100px, -100px);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
         }
 
         .dashboard-header h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
+            color: var(--dark);
+            font-size: 2.8em;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-
-        .dashboard-header h1 i {
-            color: #3498db;
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            gap: 20px;
+            background: linear-gradient(135deg, var(--dark), var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
+        .welcome-section {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
         .welcome-text {
-            color: #7f8c8d;
-            font-size: 1.2em;
+            color: var(--gray);
+            font-size: 1.3em;
             font-weight: 500;
+            flex: 1;
         }
 
         .user-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 8px 20px;
-            border-radius: 25px;
-            font-size: 0.9em;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 0.95em;
             font-weight: 600;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+            backdrop-filter: blur(10px);
         }
 
-        /* Dashboard Stats */
+        /* Stats Grid */
         .dashboard-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -79,13 +137,13 @@
 
         .stat-card {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 30px 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(20px);
+            padding: 35px 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
             text-align: center;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -96,161 +154,221 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
+            height: 5px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
         }
 
         .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
         }
 
-        .stat-card.total::before { background: linear-gradient(135deg, #3498db, #2980b9); }
-        .stat-card.pending::before { background: linear-gradient(135deg, #f39c12, #e67e22); }
-        .stat-card.approved::before { background: linear-gradient(135deg, #27ae60, #2ecc71); }
-        .stat-card.rejected::before { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-        .stat-card.high-risk::before { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .stat-card.total::before { background: linear-gradient(135deg, var(--primary), var(--secondary)); }
+        .stat-card.pending::before { background: linear-gradient(135deg, var(--warning), #ff9e16); }
+        .stat-card.approved::before { background: linear-gradient(135deg, var(--success), #05c18e); }
+        .stat-card.rejected::before { background: linear-gradient(135deg, var(--danger), #e83e6d); }
+        .stat-card.high-risk::before { background: linear-gradient(135deg, var(--danger), #e83e6d); }
+
+        .stat-icon-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .stat-icon-container::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .total .stat-icon-container::before { background: var(--primary); }
+        .pending .stat-icon-container::before { background: var(--warning); }
+        .approved .stat-icon-container::before { background: var(--success); }
+        .rejected .stat-icon-container::before { background: var(--danger); }
+        .high-risk .stat-icon-container::before { background: var(--danger); }
 
         .stat-icon {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            display: block;
+            font-size: 2.2em;
+            z-index: 2;
         }
 
-        .total .stat-icon { color: #3498db; }
-        .pending .stat-icon { color: #f39c12; }
-        .approved .stat-icon { color: #27ae60; }
-        .rejected .stat-icon { color: #e74c3c; }
-        .high-risk .stat-icon { color: #e74c3c; }
+        .total .stat-icon { color: var(--primary); }
+        .pending .stat-icon { color: var(--warning); }
+        .approved .stat-icon { color: var(--success); }
+        .rejected .stat-icon { color: var(--danger); }
+        .high-risk .stat-icon { color: var(--danger); }
 
         .stat-card h3 {
-            color: #2c3e50;
+            color: var(--dark);
             font-size: 1.1em;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
 
         .stat-number {
-            font-size: 2.8em;
+            font-size: 3.2em;
             font-weight: 800;
-            margin: 15px 0;
-            background: linear-gradient(135deg, #2c3e50, #34495e);
+            margin: 20px 0;
+            background: linear-gradient(135deg, var(--dark), var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            line-height: 1;
         }
 
         .stat-description {
-            color: #7f8c8d;
-            font-size: 0.9em;
+            color: var(--gray);
+            font-size: 0.95em;
             font-weight: 500;
         }
 
         /* Quick Actions */
         .quick-actions {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            margin-top: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .quick-actions h2 {
-            color: #2c3e50;
-            font-size: 1.5em;
-            margin-bottom: 25px;
+        .section-header {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: between;
+            margin-bottom: 35px;
         }
 
-        .quick-actions h2 i {
-            color: #3498db;
+        .section-header h2 {
+            color: var(--dark);
+            font-size: 1.8em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-header h2 i {
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .action-buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
         }
 
         .action-btn {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 20px;
-            border-radius: 15px;
+            padding: 25px 20px;
+            border-radius: var(--border-radius);
             text-decoration: none;
             text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            transition: var(--transition);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
             border: none;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.05em;
             font-weight: 600;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
         }
 
         .action-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(67, 97, 238, 0.4);
         }
 
         .action-btn i {
-            font-size: 1.5em;
+            font-size: 1.8em;
         }
 
-        .action-btn.review { background: linear-gradient(135deg, #f39c12, #e67e22); box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3); }
-        .action-btn.review:hover { box-shadow: 0 10px 25px rgba(243, 156, 18, 0.4); }
+        .action-btn.review { background: linear-gradient(135deg, #ff9e16, #ff7b00); box-shadow: 0 8px 25px rgba(255, 158, 22, 0.3); }
+        .action-btn.review:hover { box-shadow: 0 15px 35px rgba(255, 158, 22, 0.4); }
 
-        .action-btn.approve { background: linear-gradient(135deg, #27ae60, #2ecc71); box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3); }
-        .action-btn.approve:hover { box-shadow: 0 10px 25px rgba(39, 174, 96, 0.4); }
+        .action-btn.approve { background: linear-gradient(135deg, var(--success), #05c18e); box-shadow: 0 8px 25px rgba(6, 214, 160, 0.3); }
+        .action-btn.approve:hover { box-shadow: 0 15px 35px rgba(6, 214, 160, 0.4); }
 
-        .action-btn.reports { background: linear-gradient(135deg, #9b59b6, #8e44ad); box-shadow: 0 5px 15px rgba(155, 89, 182, 0.3); }
-        .action-btn.reports:hover { box-shadow: 0 10px 25px rgba(155, 89, 182, 0.4); }
+        .action-btn.reports { background: linear-gradient(135deg, #9b59b6, #8e44ad); box-shadow: 0 8px 25px rgba(155, 89, 182, 0.3); }
+        .action-btn.reports:hover { box-shadow: 0 15px 35px rgba(155, 89, 182, 0.4); }
 
-        .action-btn.behavior { background: linear-gradient(135deg, #e74c3c, #c0392b); box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3); }
-        .action-btn.behavior:hover { box-shadow: 0 10px 25px rgba(231, 76, 60, 0.4); }
+        .action-btn.behavior { background: linear-gradient(135deg, var(--danger), #e83e6d); box-shadow: 0 8px 25px rgba(239, 71, 111, 0.3); }
+        .action-btn.behavior:hover { box-shadow: 0 15px 35px rgba(239, 71, 111, 0.4); }
 
-        .action-btn.interventions { background: linear-gradient(135deg, #1abc9c, #16a085); box-shadow: 0 5px 15px rgba(26, 188, 156, 0.3); }
-        .action-btn.interventions:hover { box-shadow: 0 10px 25px rgba(26, 188, 156, 0.4); }
+        .action-btn.interventions { background: linear-gradient(135deg, #1abc9c, #16a085); box-shadow: 0 8px 25px rgba(26, 188, 156, 0.3); }
+        .action-btn.interventions:hover { box-shadow: 0 15px 35px rgba(26, 188, 156, 0.4); }
+
+        .action-btn.crb { background: linear-gradient(135deg, #8a2be2, #6a0dad); box-shadow: 0 8px 25px rgba(138, 43, 226, 0.3); }
+        .action-btn.crb:hover { box-shadow: 0 15px 35px rgba(138, 43, 226, 0.4); }
 
         /* Navigation */
         .nav-links {
             display: flex;
             gap: 15px;
-            margin-top: 20px;
+            margin-top: 30px;
             flex-wrap: wrap;
         }
 
         .nav-link {
-            color: #3498db;
+            color: var(--primary);
             text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: rgba(52, 152, 219, 0.1);
-            transition: all 0.3s ease;
+            padding: 12px 24px;
+            border-radius: 50px;
+            background: rgba(67, 97, 238, 0.1);
+            transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            font-weight: 500;
+            border: 1px solid transparent;
         }
 
         .nav-link:hover {
-            background: rgba(52, 152, 219, 0.2);
+            background: rgba(67, 97, 238, 0.15);
             transform: translateY(-2px);
+            border-color: rgba(67, 97, 238, 0.2);
         }
 
         .nav-link.behavior {
-            background: rgba(231, 76, 60, 0.1);
-            color: #e74c3c;
+            background: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
         }
 
         .nav-link.behavior:hover {
-            background: rgba(231, 76, 60, 0.2);
+            background: rgba(239, 71, 111, 0.15);
+            border-color: rgba(239, 71, 111, 0.2);
         }
 
         .nav-link.interventions {
@@ -259,25 +377,79 @@
         }
 
         .nav-link.interventions:hover {
-            background: rgba(26, 188, 156, 0.2);
+            background: rgba(26, 188, 156, 0.15);
+            border-color: rgba(26, 188, 156, 0.2);
         }
 
+        .nav-link.crb {
+            background: rgba(138, 43, 226, 0.1);
+            color: #8a2be2;
+        }
+
+        .nav-link.crb:hover {
+            background: rgba(138, 43, 226, 0.15);
+            border-color: rgba(138, 43, 226, 0.2);
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .status-pending { background: rgba(255, 209, 102, 0.2); color: #b38c00; }
+        .status-approved { background: rgba(6, 214, 160, 0.2); color: #059669; }
+        .status-high-risk { background: rgba(239, 71, 111, 0.2); color: var(--danger); }
+
         /* Responsive Design */
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .dashboard-header {
-                padding: 20px;
+                padding: 30px;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2.4em;
+            }
+            
+            .action-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .dashboard-header {
+                padding: 25px 20px;
             }
             
             .dashboard-header h1 {
                 font-size: 2em;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .welcome-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
             }
             
             .stat-card {
-                padding: 20px 15px;
+                padding: 25px 20px;
             }
             
             .stat-number {
-                font-size: 2.2em;
+                font-size: 2.6em;
             }
             
             .action-buttons {
@@ -286,7 +458,25 @@
             
             .nav-links {
                 flex-direction: column;
-                gap: 10px;
+                gap: 12px;
+            }
+            
+            .quick-actions {
+                padding: 25px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-header h1 {
+                font-size: 1.8em;
+            }
+            
+            .stat-number {
+                font-size: 2.2em;
+            }
+            
+            .action-btn {
+                padding: 20px 15px;
             }
         }
     </style>
@@ -295,87 +485,108 @@
     <div class="dashboard-container">
         <!-- Header Section -->
         <div class="dashboard-header">
-            <h1>
-                <i class="fas fa-tachometer-alt"></i>
-                Loan Officer Dashboard
-            </h1>
-            <p class="welcome-text">Welcome back, <strong>{{ username }}</strong></p>
-            <div class="user-badge">
-                <i class="fas fa-user-shield"></i>
-                Loan Officer
-            </div>
+            <div class="header-content">
+                <div class="welcome-section">
+                    <div class="welcome-text">
+                        <h1>
+                            <i class="fas fa-tachometer-alt"></i>
+                            Loan Officer Dashboard
+                        </h1>
+                        Welcome back, <strong>{{ username }}</strong> - Ready to manage today's loan portfolio
+                    </div>
+                    <div class="user-badge">
+                        <i class="fas fa-user-shield"></i>
+                        Loan Officer
+                    </div>
+                </div>
 
-            <!-- Navigation Links -->
-            <div class="nav-links">
-                <a href="/loans" class="nav-link">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    All Loans
-                </a>
-                <a href="/clients" class="nav-link">
-                    <i class="fas fa-users"></i>
-                    Clients
-                </a>
-                <a href="/behavior-monitoring" class="nav-link behavior">
-                    <i class="fas fa-chart-line"></i>
-                    Behavior Monitoring
-                </a>
-                <!-- ADDED INTERVENTIONS NAVIGATION LINK -->
-                <a href="/interventions" class="nav-link interventions">
-                    <i class="fas fa-comment-medical"></i>
-                    Interventions
-                </a>
-                <a href="/reports" class="nav-link">
-                    <i class="fas fa-chart-bar"></i>
-                    Reports
-                </a>
-                <a href="/prediction" class="nav-link">
-                    <i class="fas fa-chart-line"></i>
-                    Risk Analysis
-                </a>
-                <a href="/logout" class="nav-link" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a>
+                <!-- Navigation Links -->
+                <div class="nav-links">
+                    <a href="/loans" class="nav-link">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        All Loans
+                        <span class="status-indicator status-pending">{{ pending_loans }} pending</span>
+                    </a>
+                    <a href="/clients" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        Clients
+                    </a>
+                    <a href="/behavior-monitoring" class="nav-link behavior">
+                        <i class="fas fa-chart-line"></i>
+                        Behavior Monitoring
+                        <span class="status-indicator status-high-risk">{{ high_risk_loans }} alerts</span>
+                    </a>
+                    <a href="{{ url_for('crb_dashboard') }}" class="nav-link crb">
+                        <i class="fas fa-search"></i>
+                        CRB Monitoring
+                    </a>
+                    <a href="/interventions" class="nav-link interventions">
+                        <i class="fas fa-comment-medical"></i>
+                        Interventions
+                    </a>
+                    <a href="/reports" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        Reports
+                    </a>
+                    <a href="{{ url_for('risk_analyst_dashboard') }}" class="nav-link">
+                        <i class="fas fa-brain"></i>
+                        Risk Analysis
+                    </a>
+                    <a href="/logout" class="nav-link" style="background: rgba(239, 71, 111, 0.1); color: var(--danger);">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </div>
             </div>
         </div>
 
         <!-- Statistics Section -->
         <div class="dashboard-stats">
             <div class="stat-card total">
-                <i class="fas fa-file-invoice-dollar stat-icon"></i>
+                <div class="stat-icon-container">
+                    <i class="fas fa-file-invoice-dollar stat-icon"></i>
+                </div>
                 <h3>Total Loan Applications</h3>
                 <div class="stat-number">{{ total_loans }}</div>
-                <p class="stat-description">All submitted applications</p>
+                <p class="stat-description">All submitted applications in system</p>
             </div>
             
             <div class="stat-card pending">
-                <i class="fas fa-clock stat-icon"></i>
+                <div class="stat-icon-container">
+                    <i class="fas fa-clock stat-icon"></i>
+                </div>
                 <h3>Pending Review</h3>
                 <div class="stat-number">{{ pending_loans }}</div>
                 <p class="stat-description">Awaiting your decision</p>
             </div>
             
             <div class="stat-card approved">
-                <i class="fas fa-check-circle stat-icon"></i>
+                <div class="stat-icon-container">
+                    <i class="fas fa-check-circle stat-icon"></i>
+                </div>
                 <h3>Approved Loans</h3>
                 <div class="stat-number">{{ approved_loans }}</div>
-                <p class="stat-description">Successfully approved</p>
+                <p class="stat-description">Successfully approved applications</p>
             </div>
             
             <div class="stat-card high-risk">
-                <i class="fas fa-exclamation-triangle stat-icon"></i>
+                <div class="stat-icon-container">
+                    <i class="fas fa-exclamation-triangle stat-icon"></i>
+                </div>
                 <h3>High Risk Loans</h3>
                 <div class="stat-number">{{ high_risk_loans }}</div>
-                <p class="stat-description">Behavior score &lt; 40</p>
+                <p class="stat-description">Behavior score &lt; 40 - Needs attention</p>
             </div>
         </div>
 
         <!-- Quick Actions Section -->
         <div class="quick-actions">
-            <h2>
-                <i class="fas fa-bolt"></i>
-                Quick Actions
-            </h2>
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-bolt"></i>
+                    Quick Actions
+                </h2>
+            </div>
             <div class="action-buttons">
                 <a href="/loans" class="action-btn review">
                     <i class="fas fa-search-dollar"></i>
@@ -385,12 +596,15 @@
                     <i class="fas fa-chart-line"></i>
                     Behavior Monitoring
                 </a>
-                <!-- ADDED INTERVENTIONS QUICK ACTION BUTTON -->
+                <a href="{{ url_for('crb_dashboard') }}" class="action-btn crb">
+                    <i class="fas fa-search"></i>
+                    CRB Monitoring
+                </a>
                 <a href="/interventions" class="action-btn interventions">
                     <i class="fas fa-comment-medical"></i>
                     Manage Interventions
                 </a>
-                <a href="/prediction" class="action-btn approve">
+                <a href="{{ url_for('risk_analyst_dashboard') }}" class="action-btn approve">
                     <i class="fas fa-brain"></i>
                     Risk Analysis
                 </a>
@@ -407,20 +621,69 @@
     </div>
 
     <script>
-        // Add subtle animations to stat cards on load
+        // Enhanced animations and interactions
         document.addEventListener('DOMContentLoaded', function() {
+            // Animate stat cards with staggered delay
             const statCards = document.querySelectorAll('.stat-card');
             statCards.forEach((card, index) => {
                 card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
+                card.style.transform = 'translateY(30px) scale(0.95)';
                 
                 setTimeout(() => {
-                    card.style.transition = 'all 0.5s ease';
+                    card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
                     card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
+                    card.style.transform = 'translateY(0) scale(1)';
+                }, index * 150);
             });
+
+            // Add hover sound effects (optional)
+            const actionButtons = document.querySelectorAll('.action-btn');
+            actionButtons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-5px) scale(1)';
+                });
+            });
+
+            // Add particle effect on header (optional enhancement)
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.style.position = 'fixed';
+                particle.style.width = '4px';
+                particle.style.height = '4px';
+                particle.style.background = 'rgba(255, 255, 255, 0.5)';
+                particle.style.borderRadius = '50%';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '1';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = '0';
+                particle.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                
+                document.body.appendChild(particle);
+                
+                setTimeout(() => {
+                    particle.remove();
+                }, 5000);
+            }
+
+            // Create occasional particles
+            setInterval(createParticle, 300);
         });
+
+        // Add CSS for particle animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>

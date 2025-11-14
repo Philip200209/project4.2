@@ -8,9 +8,6 @@
 </head>
 <body class="bg-light">
 
-  <!-- ✅ Debug marker -->
-  
-
   <!-- 🔐 Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
@@ -25,9 +22,11 @@
           {% elif role == 'borrower' %}
             <a class="nav-link text-white" href="{{ url_for('dashboard_bp.borrower_dashboard') }}">Borrower Dashboard</a>
           {% endif %}
-          <a class="nav-link text-white" href="{{ url_for('auth_bp.logout') }}">Logout</a>
+          <!-- ✅ FIXED: Changed from auth.logout to logout -->
+          <a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a>
         {% else %}
-          <a class="nav-link text-white" href="{{ url_for('auth_bp.login') }}">Login</a>
+          <!-- ✅ FIXED: Changed from auth.login to login -->
+          <a class="nav-link text-white" href="{{ url_for('login') }}">Login</a>
         {% endif %}
       </div>
     </div>
@@ -50,7 +49,7 @@
   <!-- 📦 Page Content -->
   <div class="container">
     {% block content %}
-      <p style="color:green">✅ login.html is rendering</p>
+      <!-- Default content can be empty or have a welcome message -->
     {% endblock %}
   </div>
 

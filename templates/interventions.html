@@ -1,125 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interventions - CRIMAP</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; }
+        .intervention-item { border-left: 4px solid #007bff; padding: 15px; margin: 10px 0; background: #f8f9fa; }
+        .high-risk { border-left-color: #dc3545; background: #f8d7da; }
+        .payment-reminder { border-left-color: #ffc107; background: #fff3cd; }
+        .missed-payment { border-left-color: #fd7e14; background: #ffe5d0; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .table th { background: #007bff; color: white; }
+        .btn { background: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 5px; }
+        .btn-success { background: #28a745; }
+        .btn-danger { background: #dc3545; }
+    </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-                <div class="position-sticky pt-3">
-                    <h4 class="text-center">CRIMAP</h4>
-                    <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/behavior-monitoring">Behavior Monitoring</a></li>
-                        <li class="nav-item"><a class="nav-link active" href="/interventions">Interventions</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/loans">Loans</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
-                    </ul>
+    <div class="container">
+        <h1>📱 Interventions Dashboard</h1>
+        
+        <!-- Stats Overview -->
+        <div class="card">
+            <h2>📊 Intervention Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Interventions</h3>
+                    <h2>{{ total_interventions }}</h2>
                 </div>
-            </nav>
+                <div class="stat-card">
+                    <h3>High Risk Alerts</h3>
+                    <h2>{{ high_risk_alerts }}</h2>
+                </div>
+                <div class="stat-card">
+                    <h3>Payment Reminders</h3>
+                    <h2>{{ payment_reminders }}</h2>
+                </div>
+                <div class="stat-card">
+                    <h3>Today's Interventions</h3>
+                    <h2>{{ interventions_today }}</h2>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <a href="/api/trigger-interventions" class="btn btn-success">🚨 Run Intervention Check</a>
+                <a href="/behavior-monitoring" class="btn">📊 Behavior Monitoring</a>
+                <a href="/create-high-risk-loans" class="btn btn-danger">⚠️ Create Test Data</a>
+            </div>
+        </div>
 
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">📱 Automated Interventions</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <a href="/api/trigger-interventions" class="btn btn-sm btn-outline-primary">
-                            Run Intervention Check
-                        </a>
-                    </div>
-                </div>
+        <!-- Recent Interventions -->
+        <div class="card">
+            <h2>🕒 Recent Interventions</h2>
+            
+            {% if interventions %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Loan ID</th>
+                            <th>Client</th>
+                            <th>Type</th>
+                            <th>Message</th>
+                            <th>Sent At</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for intervention in interventions %}
+                        <tr>
+                            <td>{{ intervention.loan_id }}</td>
+                            <td>
+                                {% set loan = intervention.loan %}
+                                {% if loan %}
+                                    {{ loan.client_name }}
+                                {% else %}
+                                    Unknown
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if intervention.type == 'high_risk_alert' %}high-risk
+                                    {% elif intervention.type == 'payment_reminder' %}payment-reminder
+                                    {% elif intervention.type == 'missed_payment' %}missed-payment
+                                    {% endif %}">
+                                    {{ intervention.type|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>{{ intervention.message }}</td>
+                            <td>{{ intervention.sent_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if intervention.status == 'sent' %}badge-success
+                                    {% else %}badge-warning{% endif %}">
+                                    {{ intervention.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 8px;">
+                <h3>📭 No Interventions Yet</h3>
+                <p>No interventions have been sent yet. Run an intervention check to send alerts to high-risk borrowers.</p>
+                <a href="/api/trigger-interventions" class="btn btn-success">🚨 Run First Intervention Check</a>
+            </div>
+            {% endif %}
+        </div>
 
-                <!-- Intervention Stats -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card text-white bg-primary">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Interventions</h5>
-                                <h2 class="card-text">{{ interventions|length }}</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card text-white bg-warning">
-                            <div class="card-body">
-                                <h5 class="card-title">Reminders Sent</h5>
-                                <h2 class="card-text">{{ interventions|selectattr('type', 'equalto', 'payment_reminder')|list|length }}</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card text-white bg-danger">
-                            <div class="card-body">
-                                <h5 class="card-title">Alerts Sent</h5>
-                                <h2 class="card-text">{{ interventions|selectattr('type', 'equalto', 'high_risk_alert')|list|length }}</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card text-white bg-success">
-                            <div class="card-body">
-                                <h5 class="card-title">Active Today</h5>
-                                <h2 class="card-text">{{ interventions|selectattr('sent_at', '>=', today)|list|length }}</h2>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Intervention Types Breakdown -->
+        <div class="card">
+            <h2>📋 Intervention Types</h2>
+            <div class="stats-grid">
+                <div class="stat-card high-risk">
+                    <h4>🚨 High Risk Alerts</h4>
+                    <p>Sent when behavior score drops below 40</p>
+                    <h3>{{ high_risk_alerts }}</h3>
                 </div>
+                <div class="stat-card missed-payment">
+                    <h4>⚠️ Missed Payments</h4>
+                    <p>Sent when payments are missed</p>
+                    <h3>{{ missed_payments }}</h3>
+                </div>
+                <div class="stat-card payment-reminder">
+                    <h4>📅 Payment Reminders</h4>
+                    <p>Sent 3 days before due date</p>
+                    <h3>{{ payment_reminders }}</h3>
+                </div>
+            </div>
+        </div>
 
-                <!-- Interventions List -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Intervention History</h5>
-                    </div>
-                    <div class="card-body">
-                        {% if interventions %}
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Borrower</th>
-                                        <th>Type</th>
-                                        <th>Message</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for intervention in interventions %}
-                                    <tr>
-                                        <td>{{ intervention.sent_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                                        <td>{{ intervention.loan.client_name }}</td>
-                                        <td>
-                                            <span class="badge 
-                                                {% if intervention.type == 'payment_reminder' %}bg-primary
-                                                {% elif intervention.type == 'missed_payment' %}bg-warning
-                                                {% elif intervention.type == 'high_risk_alert' %}bg-danger
-                                                {% else %}bg-secondary{% endif %}">
-                                                {{ intervention.type|replace('_', ' ')|title }}
-                                            </span>
-                                        </td>
-                                        <td>{{ intervention.message }}</td>
-                                        <td>
-                                            <span class="badge bg-success">{{ intervention.status }}</span>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        {% else %}
-                        <div class="text-center py-4">
-                            <h5 class="text-muted">No interventions sent yet</h5>
-                            <p class="text-muted">Run the intervention check to send automated messages</p>
-                            <a href="/api/trigger-interventions" class="btn btn-primary">Run Intervention Check</a>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </main>
+        <!-- Quick Actions -->
+        <div class="card">
+            <h2>⚡ Quick Actions</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="/api/trigger-interventions" class="btn btn-success">🔄 Run Intervention Check</a>
+                <a href="/behavior-monitoring" class="btn">📊 View Behavior Monitoring</a>
+                <a href="/create-high-risk-loans" class="btn btn-danger">🎯 Create Test Scenarios</a>
+                <a href="/check-loan-status" class="btn">🔍 Check Loan Status</a>
+                <a href="/api/interventions/stats" class="btn">📈 View API Stats</a>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Auto-refresh interventions every 30 seconds
+        setInterval(function() {
+            fetch('/api/interventions/stats')
+                .then(response => response.json())
+                .then(data => {
+                    // Update stats cards
+                    document.querySelectorAll('.stat-card h2')[0].textContent = data.total_interventions;
+                    document.querySelectorAll('.stat-card h3')[0].textContent = data.high_risk_alerts;
+                    document.querySelectorAll('.stat-card h3')[1].textContent = data.payment_reminders;
+                    document.querySelectorAll('.stat-card h3')[2].textContent = data.active_today;
+                });
+        }, 30000);
+
+        // Add some basic styling for badges
+        const style = document.createElement('style');
+        style.textContent = `
+            .badge {
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            .high-risk { background: #dc3545; color: white; }
+            .payment-reminder { background: #ffc107; color: black; }
+            .missed-payment { background: #fd7e14; color: white; }
+            .badge-success { background: #28a745; color: white; }
+            .badge-warning { background: #ffc107; color: black; }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>

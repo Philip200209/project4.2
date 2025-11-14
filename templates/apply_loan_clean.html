@@ -140,12 +140,6 @@
                 <!-- Personal Information -->
                 <div class="form-section">
                     <h4>👤 Personal Information</h4>
-
-                    <div class="form-group">
-                        <label>Full Name <span class="required">*</span></label>
-                        <input type="text" name="client_name" value="{{ username or (current_user.username if current_user else '') }}" placeholder="e.g., Jane Wanjiku" required>
-                        <small>Your full name as it should appear on the loan application</small>
-                    </div>
                     
                     <div class="form-group">
                         <label>National ID Number <span class="required">*</span></label>
@@ -155,7 +149,7 @@
                     
                     <div class="form-group">
                         <label>Phone Number <span class="required">*</span></label>
-                        <input type="tel" name="client_phone" placeholder="e.g., +254712345678" required>
+                        <input type="tel" name="phone_number" placeholder="e.g., +254712345678" required>
                         <small>Format: +254712345678</small>
                     </div>
                 </div>
@@ -166,13 +160,13 @@
                     
                     <div class="form-group">
                         <label>Loan Amount (KSh) <span class="required">*</span></label>
-                        <input type="number" name="amount" placeholder="e.g., 50000" min="1000" max="1000000" step="1000" required>
+                        <input type="number" name="loan_amount" placeholder="e.g., 50000" min="1000" max="1000000" step="1000" required>
                         <small>Amount between KSh 1,000 and KSh 1,000,000</small>
                     </div>
                     
                     <div class="form-group">
                         <label>Loan Term (Months) <span class="required">*</span></label>
-                        <select name="term" required>
+                        <select name="loan_term" required>
                             <option value="">Select term</option>
                             <option value="6">6 months</option>
                             <option value="12">12 months</option>
@@ -184,7 +178,7 @@
                     
                     <div class="form-group">
                         <label>Loan Purpose <span class="required">*</span></label>
-                        <select name="purpose" required>
+                        <select name="loan_purpose" required>
                             <option value="">Select purpose</option>
                             <option value="Business">Business Expansion</option>
                             <option value="Education">Education Fees</option>
@@ -195,122 +189,6 @@
                             <option value="Agriculture">Agriculture</option>
                             <option value="Emergency">Emergency</option>
                         </select>
-                    </div>
-                </div>
-
-                <!-- Employment & Income (required by backend) -->
-                <div class="form-section">
-                    <h4>💼 Employment & Income</h4>
-
-                    <div class="form-group">
-                        <label>Employment Status <span class="required">*</span></label>
-                        <select name="employment_status" required>
-                            <option value="">Select employment status</option>
-                            <option value="Employed">Employed</option>
-                            <option value="Self-Employed">Self-Employed</option>
-                            <option value="Unemployed">Unemployed</option>
-                            <option value="Student">Student</option>
-                            <option value="Retired">Retired</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Monthly Income (KSh) <span class="required">*</span></label>
-                        <input type="number" name="monthly_income" placeholder="e.g., 50000" min="0" step="1000" required>
-                        <small>Your total monthly income from all sources</small>
-                    </div>
-                </div>
-
-                <!-- Financial Information (required/used in risk model) -->
-                <div class="form-section">
-                    <h4>📊 Financial Information</h4>
-
-                    <div class="form-group">
-                        <label>Existing Monthly Debt (KSh)</label>
-                        <input type="number" name="existing_debt" placeholder="e.g., 15000" min="0" step="1000" value="0">
-                        <small>Total monthly payments for existing loans (leave as 0 if none)</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Credit History <span class="required">*</span></label>
-                        <select name="credit_history" required>
-                            <option value="">Select your credit history</option>
-                            <option value="0">No, first time borrower</option>
-                            <option value="6">Yes, had loans 1-6 months ago</option>
-                            <option value="12">Yes, had loans 7-12 months ago</option>
-                            <option value="24">Yes, had loans 1-2 years ago</option>
-                            <option value="36">Yes, had loans more than 2 years ago</option>
-                        </select>
-                        <small>Select when you last had a loan (if applicable)</small>
-                    </div>
-                </div>
-
-                <!-- Optional: extra features to improve prediction (not required) -->
-                <div class="form-section">
-                    <h4>🧠 Optional Details to Improve Prediction</h4>
-                    <div class="form-group">
-                        <label>Education Level</label>
-                        <select name="ml_education_level">
-                            <option value="">Select</option>
-                            <option value="primary">Primary</option>
-                            <option value="secondary">Secondary</option>
-                            <option value="diploma">Diploma</option>
-                            <option value="bachelor">Bachelor</option>
-                            <option value="postgraduate">Postgraduate</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Marital Status</label>
-                        <select name="ml_marital_status">
-                            <option value="">Select</option>
-                            <option value="single">Single</option>
-                            <option value="married">Married</option>
-                            <option value="divorced">Divorced</option>
-                            <option value="widowed">Widowed</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Number of Dependents</label>
-                        <input type="number" name="ml_dependents" min="0" step="1">
-                    </div>
-                    <div class="form-group">
-                        <label>Years at Current Residence</label>
-                        <input type="number" name="ml_residence_years" min="0" step="1">
-                    </div>
-                    <div class="form-group">
-                        <label>Employer Name</label>
-                        <input type="text" name="ml_employer">
-                    </div>
-                    <div class="form-group">
-                        <label>Employment Sector</label>
-                        <select name="ml_sector">
-                            <option value="">Select</option>
-                            <option value="public">Public</option>
-                            <option value="private">Private</option>
-                            <option value="informal">Informal</option>
-                            <option value="agriculture">Agriculture</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Bank Account Age (months)</label>
-                        <input type="number" name="ml_bank_history_months" min="0" step="1">
-                    </div>
-                    <div class="form-group">
-                        <label>Average Savings Balance (KSh)</label>
-                        <input type="number" name="ml_savings_balance" min="0" step="1000">
-                    </div>
-                    <div class="form-group">
-                        <label>Average Monthly Expenses (KSh)</label>
-                        <input type="number" name="ml_monthly_expenses" min="0" step="1000">
-                    </div>
-                    <div class="form-group">
-                        <label>Collateral Type</label>
-                        <input type="text" name="ml_collateral_type" placeholder="e.g., logbook, title deed">
-                    </div>
-                    <div class="form-group">
-                        <label>Collateral Estimated Value (KSh)</label>
-                        <input type="number" name="ml_collateral_value" min="0" step="1000">
                     </div>
                 </div>
 
@@ -361,7 +239,7 @@
                 });
                 
                 // Validate loan amount
-                const amount = parseFloat(document.querySelector('input[name="amount"]').value);
+                const amount = parseFloat(document.querySelector('input[name="loan_amount"]').value);
                 if (amount < 1000 || amount > 1000000) {
                     isValid = false;
                     alert('Loan amount must be between KSh 1,000 and KSh 1,000,000');
@@ -375,7 +253,7 @@
                 }
                 
                 // Validate phone number
-                const phone = document.querySelector('input[name="client_phone"]').value;
+                const phone = document.querySelector('input[name="phone_number"]').value;
                 if (!phone.startsWith('+254')) {
                     isValid = false;
                     alert('Phone number must start with +254');
@@ -387,7 +265,7 @@
             });
             
             // Auto-format phone number
-            const phoneInput = document.querySelector('input[name="client_phone"]');
+            const phoneInput = document.querySelector('input[name="phone_number"]');
             phoneInput.addEventListener('input', function(e) {
                 let value = e.target.value.replace(/\D/g, '');
                 if (value.startsWith('254')) {

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Apply for Loan - CRIMAP</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .form-section { 
+            margin-bottom: 30px; 
+            padding-bottom: 20px; 
+            border-bottom: 1px solid #eee; 
+        }
+        .form-section h4 { 
+            color: #007bff; 
+            margin-bottom: 15px; 
+        }
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            color: #333; 
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            font-size: 14px; 
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus { 
+            border-color: #007bff; 
+            outline: none; 
+        }
+        .btn { 
+            background: #007bff; 
+            color: white; 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            width: 100%;
+        }
+        .btn:hover { 
+            background: #0056b3; 
+        }
+        .info-box { 
+            background: #e3f2fd; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-bottom: 20px; 
+        }
+        .required { 
+            color: red; 
+        }
+        small { 
+            color: #666; 
+            font-size: 12px; 
+            display: block;
+            margin-top: 5px;
+        }
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        .flash-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb;
+        }
+        .flash-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .crb-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Apply for Loan</h1>
+        
+        <!-- Flash Messages -->
+        <div class="flash-messages">
+            <!-- Flash messages will appear here -->
+        </div>
+
+        <div class="info-box">
+            <h3>📝 Application Guidelines</h3>
+            <p>✓ Ensure all information is accurate and complete</p>
+            <p>✓ Loan decisions are typically made within 2-3 business days</p>
+            <p>✓ You'll be notified via email about your application status</p>
+            <p>✓ Interest rates range from 8% to 15% based on risk assessment</p>
+            <p>✓ All fields marked with <span class="required">*</span> are required</p>
+            <p>✓ CRB check will be performed using your ID Number</p>
+        </div>
+
+        <div class="card">
+            <form method="POST" action="/loan/apply">
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <h4>👤 Personal Information</h4>
+                    
+                    <!-- ADDED: client_name field (required by Loan model) -->
+                    <div class="form-group">
+                        <label for="client_name">Full Name <span class="required">*</span></label>
+                        <input type="text" id="client_name" name="client_name" 
+                               value="{{ current_user.username if current_user else '' }}" 
+                               required>
+                        <small>Your full name as it should appear on the loan application</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Full Name <span class="required">*</span></label>
+                        <input type="text" name="full_name" value="{{ username }}" required readonly style="background: #f9f9f9;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>National ID Number <span class="required">*</span></label>
+                        <input type="text" name="national_id" placeholder="e.g., 12345678" pattern="[0-9]{8}" required maxlength="8">
+                        <small>Your 8-digit Kenyan National ID number (used for CRB check)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Phone Number <span class="required">*</span></label>
+                        <input type="tel" name="phone_number" placeholder="e.g., +254712345678" pattern="[+][0-9]{12}" required>
+                        <small>Format: +254712345678 (12 digits with country code)</small>
+                    </div>
+                </div>
+
+                <!-- CRB Consent -->
+                <div class="form-section">
+                    <div class="crb-notice">
+                        <strong>📊 Credit Reference Bureau (CRB) Check</strong>
+                        <p>By proceeding, you consent to a credit check with licensed Credit Reference Bureaus in Kenya. This helps us assess your loan application and comply with regulatory requirements.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="crb_consent" required>
+                            I consent to a CRB check using my ID Number and personal details <span class="required">*</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Employment & Income -->
+                <div class="form-section">
+                    <h4>💼 Employment & Income</h4>
+                    
+                    <div class="form-group">
+                        <label>Employment Status <span class="required">*</span></label>
+                        <select name="employment_status" required>
+                            <option value="">Select employment status</option>
+                            <option value="Employed">Employed</option>
+                            <option value="Self-Employed">Self-Employed</option>
+                            <option value="Unemployed">Unemployed</option>
+                            <option value="Student">Student</option>
+                            <option value="Retired">Retired</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Monthly Income (KSh) <span class="required">*</span></label>
+                        <input type="number" name="monthly_income" placeholder="e.g., 50000" min="0" step="1000" required>
+                        <small>Your total monthly income from all sources</small>
+                    </div>
+                </div>
+
+                <!-- Loan Details -->
+                <div class="form-section">
+                    <h4>💰 Loan Details</h4>
+                    
+                    <div class="form-group">
+                        <label>Loan Amount (KSh) <span class="required">*</span></label>
+                        <input type="number" name="loan_amount" placeholder="e.g., 50000" min="1000" max="1000000" step="1000" required>
+                        <small>Amount between KSh 1,000 and KSh 1,000,000</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Loan Term (Months) <span class="required">*</span></label>
+                        <select name="loan_term" required>
+                            <option value="">Select term</option>
+                            <option value="6">6 months</option>
+                            <option value="12">12 months</option>
+                            <option value="18">18 months</option>
+                            <option value="24">24 months</option>
+                            <option value="36">36 months</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Loan Purpose <span class="required">*</span></label>
+                        <select name="loan_purpose" required>
+                            <option value="">Select purpose</option>
+                            <option value="Business">Business Expansion</option>
+                            <option value="Education">Education Fees</option>
+                            <option value="Medical">Medical Expenses</option>
+                            <option value="Personal">Personal Use</option>
+                            <option value="Home">Home Improvement</option>
+                            <option value="Vehicle">Vehicle Purchase</option>
+                            <option value="Agriculture">Agriculture</option>
+                            <option value="Emergency">Emergency</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Financial Information -->
+                <div class="form-section">
+                    <h4>📊 Financial Information</h4>
+                    
+                    <div class="form-group">
+                        <label>Existing Monthly Debt (KSh)</label>
+                        <input type="number" name="existing_debt" placeholder="e.g., 15000" min="0" step="1000" value="0">
+                        <small>Total monthly payments for existing loans (leave as 0 if none)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Credit History <span class="required">*</span></label>
+                        <select name="credit_history" required>
+                            <option value="">Select your credit history</option>
+                            <option value="0">No, first time borrower</option>
+                            <option value="6">Yes, had loans 1-6 months ago</option>
+                            <option value="12">Yes, had loans 7-12 months ago</option>
+                            <option value="24">Yes, had loans 1-2 years ago</option>
+                            <option value="36">Yes, had loans more than 2 years ago</option>
+                        </select>
+                        <small>Select when you last had a loan (if applicable)</small>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="form-section">
+                    <h4>📝 Additional Information</h4>
+                    
+                    <div class="form-group">
+                        <label>Additional Details (Optional)</label>
+                        <textarea name="additional_details" placeholder="Provide any additional information about your loan request, such as specific needs or circumstances..." rows="4"></textarea>
+                    </div>
+                </div>
+
+                <!-- Consent -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="terms_accepted" required>
+                            I agree to the Terms and Conditions and Privacy Policy <span class="required">*</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">✅ Submit Application</button>
+                
+                <div class="back-link">
+                    <a href="/borrower-dashboard" style="color: #007bff; text-decoration: none;">← Back to Dashboard</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Form validation and enhancement
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            
+            // Add real-time validation
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                const requiredFields = form.querySelectorAll('[required]');
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.style.borderColor = 'red';
+                    } else {
+                        field.style.borderColor = '#ddd';
+                    }
+                });
+                
+                // Validate ID Number format
+                const idNumber = document.querySelector('input[name="national_id"]');
+                if (idNumber.value && !/^\d{8}$/.test(idNumber.value)) {
+                    isValid = false;
+                    idNumber.style.borderColor = 'red';
+                    alert('Please enter a valid 8-digit ID Number.');
+                }
+                
+                // Check checkboxes
+                const termsCheckbox = document.querySelector('input[name="terms_accepted"]');
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields marked with * and ensure all information is correct.');
+                }
+            });
+            
+            // Format phone number input
+            const phoneInput = document.querySelector('input[name="client_phone"]');
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.startsWith('254')) {
+                    value = '+' + value;
+                } else if (value.length > 0 && !value.startsWith('254')) {
+                    value = '+254' + value;
+                }
+                e.target.value = value.substring(0, 13); // +254712345678
+            });
+            
+            // Format ID Number input (numbers only)
+            const idInput = document.querySelector('input[name="id_number"]');
+            idInput.addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/\D/g, '').substring(0, 8);
+            });
+            
+            // Calculate and show estimated monthly payment
+            function updateMonthlyPayment() {
+                const amount = parseFloat(document.querySelector('input[name="amount"]').value) || 0;
+                const term = parseInt(document.querySelector('select[name="term"]').value) || 12;
+                
+                if (amount > 0 && term > 0) {
+                    // Simple calculation (principal only for estimation)
+                    const monthlyPayment = amount / term;
+                    const paymentElement = document.getElementById('monthly-payment');
+                    if (!paymentElement) {
+                        const paymentDiv = document.createElement('div');
+                        paymentDiv.id = 'monthly-payment';
+                        paymentDiv.style.marginTop = '10px';
+                        paymentDiv.style.padding = '10px';
+                        paymentDiv.style.background = '#e7f3ff';
+                        paymentDiv.style.borderRadius = '5px';
+                        paymentDiv.innerHTML = `<strong>Estimated Monthly Payment: KSh ${monthlyPayment.toLocaleString()}</strong>`;
+                        document.querySelector('input[name="amount"]').parentNode.appendChild(paymentDiv);
+                    } else {
+                        paymentElement.innerHTML = `<strong>Estimated Monthly Payment: KSh ${monthlyPayment.toLocaleString()}</strong>`;
+                    }
+                }
+            }
+            
+            // Add event listeners for loan amount and term
+            document.querySelector('input[name="amount"]').addEventListener('input', updateMonthlyPayment);
+            document.querySelector('select[name="term"]').addEventListener('change', updateMonthlyPayment);
+            
+            // Show debt-to-income ratio
+            function updateDebtRatio() {
+                const income = parseFloat(document.querySelector('input[name="monthly_income"]').value) || 0;
+                const debt = parseFloat(document.querySelector('input[name="existing_debt"]').value) || 0;
+                const loanAmount = parseFloat(document.querySelector('input[name="amount"]').value) || 0;
+                const term = parseInt(document.querySelector('select[name="term"]').value) || 12;
+                
+                if (income > 0) {
+                    const loanPayment = loanAmount / term;
+                    const totalDebtPayment = debt + loanPayment;
+                    const debtRatio = (totalDebtPayment / income) * 100;
+                    
+                    const ratioElement = document.getElementById('debt-ratio');
+                    if (!ratioElement) {
+                        const ratioDiv = document.createElement('div');
+                        ratioDiv.id = 'debt-ratio';
+                        ratioDiv.style.marginTop = '10px';
+                        ratioDiv.style.padding = '10px';
+                        ratioDiv.style.borderRadius = '5px';
+                        ratioDiv.style.fontSize = '14px';
+                        document.querySelector('input[name="monthly_income"]').parentNode.appendChild(ratioDiv);
+                    }
+                    
+                    const ratioDiv = document.getElementById('debt-ratio');
+                    let color = '#28a745'; // Green
+                    let message = 'Good';
+                    
+                    if (debtRatio > 50) {
+                        color = '#dc3545'; // Red
+                        message = 'High - May affect approval';
+                    } else if (debtRatio > 30) {
+                        color = '#ffc107'; // Yellow
+                        message = 'Moderate';
+                    }
+                    
+                    ratioDiv.innerHTML = `<strong>Total Debt-to-Income Ratio: ${debtRatio.toFixed(1)}%</strong> <span style="color: ${color}">(${message})</span>`;
+                    ratioDiv.style.background = color === '#dc3545' ? '#f8d7da' : color === '#ffc107' ? '#fff3cd' : '#d4edda';
+                    ratioDiv.style.border = `1px solid ${color}`;
+                }
+            }
+            
+            // Add event listeners for financial fields
+            document.querySelector('input[name="monthly_income"]').addEventListener('input', updateDebtRatio);
+            document.querySelector('input[name="existing_debt"]').addEventListener('input', updateDebtRatio);
+            document.querySelector('input[name="amount"]').addEventListener('input', updateDebtRatio);
+            document.querySelector('select[name="term"]').addEventListener('change', updateDebtRatio);
+        });
+        
+        // Display flash messages from Flask
+        function showFlashMessages() {
+            const flashDiv = document.querySelector('.flash-messages');
+            // This would typically be populated by Flask's flash messages
+        }
+        
+        document.addEventListener('DOMContentLoaded', showFlashMessages);
+    </script>
+</body>
+</html>

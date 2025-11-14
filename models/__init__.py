@@ -7,6 +7,7 @@ from .repayment import Repayment
 from .role import Role
 from .permission import Permission
 from .role_permission import RolePermission
+from .crb_report import CRBReport  # ADD THIS LINE
 
 # Export only models, NOT db
 __all__ = [
@@ -17,5 +18,6 @@ __all__ = [
     'Repayment', 
     'Role', 
     'Permission', 
-    'RolePermission'
+    'RolePermission',
+    'CRBReport'  # ADD THIS LINE
 ]

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interventions Dashboard - CRIMAP</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --success: #4cc9f0;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            margin: 10px;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .intervention-item {
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+        }
+        
+        .high-risk { border-left-color: var(--danger); }
+        .missed-payment { border-left-color: var(--warning); }
+        .payment-reminder { border-left-color: var(--success); }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 5px;
+        }
+        
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-comment-medical"></i> Interventions Dashboard</h1>
+            <p>Automated borrower communication system</p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="dashboard-card">
+            <h2><i class="fas fa-chart-bar"></i> Intervention Statistics</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-interventions">0</div>
+                    <div>Total Interventions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="high-risk-alerts">0</div>
+                    <div>High Risk Alerts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="payment-reminders">0</div>
+                    <div>Payment Reminders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="active-today">0</div>
+                    <div>Active Today</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="dashboard-card">
+            <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+            <button class="btn btn-primary" onclick="runInterventionCheck()">
+                <i class="fas fa-play"></i> Run Intervention Check
+            </button>
+            <button class="btn btn-success" onclick="createTestData()">
+                <i class="fas fa-vial"></i> Create Test Data
+            </button>
+            <button class="btn btn-danger" onclick="clearInterventions()">
+                <i class="fas fa-trash"></i> Clear Test Data
+            </button>
+            <a href="/behavior-monitoring" class="btn" style="background: #6c757d; color: white;">
+                <i class="fas fa-chart-line"></i> Behavior Monitoring
+            </a>
+        </div>
+
+        <!-- Real-time Results -->
+        <div class="dashboard-card">
+            <h2><i class="fas fa-history"></i> Latest Interventions</h2>
+            <div id="intervention-results">
+                <p>Run intervention check to see results...</p>
+            </div>
+        </div>
+
+        <!-- High-Risk Loans -->
+        <div class="dashboard-card">
+            <h2><i class="fas fa-exclamation-triangle"></i> High-Risk Loans Ready for Intervention</h2>
+            <div id="high-risk-loans">
+                Loading...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load initial data
+        loadStats();
+        loadHighRiskLoans();
+
+        function loadStats() {
+            fetch('/api/interventions/stats')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('total-interventions').textContent = data.total_interventions;
+                    document.getElementById('high-risk-alerts').textContent = data.high_risk_alerts;
+                    document.getElementById('payment-reminders').textContent = data.payment_reminders;
+                    document.getElementById('active-today').textContent = data.active_today;
+                });
+        }
+
+        function loadHighRiskLoans() {
+            fetch('/api/loans/high-risk')
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('high-risk-loans');
+                    if (data.loans.length === 0) {
+                        container.innerHTML = '<p>No high-risk loans found. Create test data to see interventions in action.</p>';
+                    } else {
+                        container.innerHTML = data.loans.map(loan => `
+                            <div class="intervention-item high-risk">
+                                <strong>${loan.client_name}</strong> - Score: ${loan.behavior_score} 
+                                - Missed: ${loan.payments_missed} payments
+                                <br><small>${loan.risk_flags || 'No risk flags'}</small>
+                            </div>
+                        `).join('');
+                    }
+                });
+        }
+
+        function runInterventionCheck() {
+            fetch('/api/trigger-interventions')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('intervention-results').innerHTML = `
+                        <div style="background: #d4edda; padding: 15px; border-radius: 8px;">
+                            <h4>✅ Intervention Check Completed</h4>
+                            <p><strong>Result:</strong> ${data.message}</p>
+                            <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                        </div>
+                    `;
+                    loadStats();
+                    loadHighRiskLoans();
+                    
+                    // Reload page after 2 seconds to see new interventions
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                });
+        }
+
+        function createTestData() {
+            window.open('/create-test-interventions', '_blank');
+        }
+
+        function clearInterventions() {
+            if (confirm('Clear all test interventions?')) {
+                fetch('/api/interventions/clear-test')
+                    .then(r => r.json())
+                    .then(data => {
+                        alert(data.message);
+                        loadStats();
+                        loadHighRiskLoans();
+                    });
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>

@@ -33,9 +33,20 @@ class Loan(db.Model):
     is_flagged = db.Column(db.Boolean, default=False)
     flag_reason = db.Column(db.String(200))
 
+    # === NEW CRB INTEGRATION FIELDS ===
+    national_id = db.Column(db.String(20))
+    crb_checked = db.Column(db.Boolean, default=False)
+    crb_report_id = db.Column(db.Integer, db.ForeignKey('crb_report.id'))
+    
+    # Risk level based on comprehensive scoring
+    risk_level = db.Column(db.String(20), default='Medium')  # Low, Medium, High, Critical
+
     # REMOVE these foreign keys - they're causing the error
     # user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     # client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
+
+    # Relationship to CRBReport
+    crb_report = db.relationship('CRBReport', backref='loan', foreign_keys=[crb_report_id])
 
     def to_dict(self):
         return {
@@ -46,11 +57,15 @@ class Loan(db.Model):
             'term': self.term,
             'status': self.status,
             'risk_score': self.risk_score,
+            'risk_level': self.risk_level,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M'),
             'purpose': self.purpose,
             'behavior_score': self.behavior_score,
             'payments_missed': self.payments_missed,
-            'is_flagged': self.is_flagged
+            'is_flagged': self.is_flagged,
+            'national_id': self.national_id,
+            'crb_checked': self.crb_checked,
+            'crb_report_id': self.crb_report_id
         }
 
     def get_risk_flags(self):
@@ -103,6 +118,9 @@ class Loan(db.Model):
         # Update behavior score positively
         self.behavior_score = min(100, self.behavior_score + 5)
         
+        # Update risk level based on improved behavior
+        self.update_risk_level()
+        
         return True
 
     def check_missed_payment(self):
@@ -125,9 +143,43 @@ class Loan(db.Model):
             
             # Move next payment date to avoid repeated alerts
             self.next_payment_date = today + timedelta(days=30)
+            
+            # Update risk level based on worsened behavior
+            self.update_risk_level()
+            
             return True
         
         return False
+
+    def update_risk_level(self):
+        """Update risk level based on comprehensive scoring"""
+        if self.risk_score is None:
+            return
+            
+        if self.risk_score >= 70:
+            self.risk_level = 'Low'
+        elif self.risk_score >= 50:
+            self.risk_level = 'Medium'
+        elif self.risk_score >= 30:
+            self.risk_level = 'High'
+        else:
+            self.risk_level = 'Critical'
+
+    def get_crb_insights(self):
+        """Get insights based on CRB data if available"""
+        if not self.crb_report:
+            return "No CRB data available", "CRB check not performed", "secondary"
+            
+        crb_data = self.crb_report.to_dict() if hasattr(self.crb_report, 'to_dict') else {}
+        
+        if crb_data.get('blacklist_status'):
+            return "Blacklisted", "Applicant is on CRB blacklist", "danger"
+        elif crb_data.get('credit_score', 0) >= 700:
+            return "Good Credit", "Favorable credit history", "success"
+        elif crb_data.get('credit_score', 0) >= 550:
+            return "Fair Credit", "Moderate credit history", "warning"
+        else:
+            return "Poor Credit", "Unfavorable credit history", "danger"
 
     def get_behavior_insights(self):
         """Get behavior insights and recommendations"""
@@ -140,5 +192,34 @@ class Loan(db.Model):
         else:
             return "High Risk", "Frequent payment problems", "danger"
 
+    def get_comprehensive_risk_assessment(self):
+        """Get comprehensive risk assessment combining all factors"""
+        behavior_level, behavior_msg, behavior_color = self.get_behavior_insights()
+        crb_level, crb_msg, crb_color = self.get_crb_insights()
+        
+        # Combine assessments
+        if behavior_color == 'danger' or crb_color == 'danger':
+            return "Critical Risk", "Multiple high-risk factors detected", "danger"
+        elif behavior_color == 'warning' or crb_color == 'warning':
+            return "Elevated Risk", "Several risk factors require monitoring", "warning"
+        elif behavior_color == 'success' and crb_color == 'success':
+            return "Low Risk", "Favorable risk profile", "success"
+        else:
+            return "Moderate Risk", "Standard risk monitoring required", "info"
+
+    def can_approve_loan(self):
+        """Check if loan can be approved based on comprehensive risk assessment"""
+        if self.crb_report and hasattr(self.crb_report, 'blacklist_status'):
+            if self.crb_report.blacklist_status:
+                return False, "Applicant is blacklisted in CRB"
+        
+        if self.risk_score is not None and self.risk_score < 30:
+            return False, "Risk score too low for approval"
+            
+        if self.behavior_score < 40 and self.status == 'approved':
+            return False, "Poor behavior score for existing loan"
+            
+        return True, "Eligible for approval"
+
     def __repr__(self):
-        return f'<Loan {self.id} - {self.client_name} - {self.status}>'
+        return f'<Loan {self.id} - {self.client_name} - {self.status} - CRB: {self.crb_checked}>'

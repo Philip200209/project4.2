@@ -2,7 +2,7 @@
 {% block content %}
 <div class="container mt-5">
   <h3>Add New Client</h3>
-  <form method="POST" action="{{ url_for('clients_bp.add_client') }}">
+  <form method="POST" action="{{ url_for('clients_add') }}">
     <div class="mb-3">
       <label for="name" class="form-label">Full Name</label>
       <input type="text" class="form-control" name="name" required>
@@ -24,7 +24,7 @@
       <input type="number" class="form-control" name="credit_score" required>
     </div>
     <button type="submit" class="btn btn-primary">Add Client</button>
-    <a href="{{ url_for('clients_bp.view_clients') }}" class="btn btn-secondary ms-2">Cancel</a>
+    <a href="{{ url_for('clients_page') }}" class="btn btn-secondary ms-2">Cancel</a>
   </form>
 </div>
 {% endblock %}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Borrower Dashboard - TEST</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .loan { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .pending { background: #fff3cd; border-left: 5px solid #ffc107; }
+        .approved { background: #d4edda; border-left: 5px solid #28a745; }
+        .rejected { background: #f8d7da; border-left: 5px solid #dc3545; }
+        .stats { background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .btn { background: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>📊 Borrower Dashboard - SIMPLE TEST</h1>
+    
+    <div class="stats">
+        <h3>👤 User Information</h3>
+        <p><strong>Username:</strong> {{ username }}</p>
+        <p><strong>Total Loans:</strong> {{ total_loans }}</p>
+        <p><strong>Status Breakdown:</strong> 
+            <span style="color: #ffc107;">⏳ Pending: {{ stats.pending }}</span> | 
+            <span style="color: #28a745;">✅ Approved: {{ stats.approved }}</span> | 
+            <span style="color: #dc3545;">❌ Rejected: {{ stats.rejected }}</span>
+        </p>
+    </div>
+
+    <h2>📋 Your Loan Applications</h2>
+    
+    {% if loans %}
+        <p>Found <strong>{{ loans|length }}</strong> loan applications:</p>
+        
+        {% for loan in loans %}
+            <div class="loan {{ loan.status }}">
+                <h3>💰 Loan #{{ loan.id }}: {{ loan.purpose }}</h3>
+                <p><strong>Amount:</strong> KSh {{ "{:,.2f}".format(loan.amount) }}</p>
+                <p><strong>Status:</strong> 
+                    {% if loan.status == 'pending' %}
+                        <span style="color: #ffc107;">⏳ PENDING</span>
+                    {% elif loan.status == 'approved' %}
+                        <span style="color: #28a745;">✅ APPROVED</span>
+                    {% else %}
+                        <span style="color: #dc3545;">❌ REJECTED</span>
+                    {% endif %}
+                </p>
+                <p><strong>Term:</strong> {{ loan.term }} months</p>
+                <p><strong>Risk Score:</strong> {{ loan.risk_score }}%</p>
+                <p><strong>Interest Rate:</strong> {{ loan.interest_rate }}%</p>
+                <p><strong>Applied:</strong> {{ loan.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3>📝 No Loans Found</h3>
+            <p>You haven't applied for any loans yet.</p>
+            <a href="/loans/apply" class="btn" style="background: #28a745;">Apply for Your First Loan</a>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 20px;">
+        <a href="/loans/apply" class="btn" style="background: #28a745;">📝 Apply New Loan</a>
+        <a href="/debug-all-loans" class="btn" style="background: #007bff;">🐛 Debug All Loans</a>
+        <a href="/borrower-dashboard" class="btn" style="background: #6c757d;">📊 Main Dashboard</a>
+    </div>
+</body>
+</html>
