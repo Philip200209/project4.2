@@ -3,938 +3,804 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - CRIMAP</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Admin Control Center - CRIMAP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4361ee;
-            --primary-dark: #3a0ca3;
-            --primary-light: #4895ef;
-            --secondary: #7209b7;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #f8961e;
-            --info: #4895ef;
-            --light: #f8f9fa;
-            --dark: #2d3748;
-            --gray: #6c757d;
-            --border-radius: 16px;
-            --box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --sidebar-width: 280px;
+            --bg-gradient: radial-gradient(circle at 10% 15%, rgba(76,130,255,0.26) 0%, rgba(76,130,255,0) 45%),
+                            radial-gradient(circle at 85% 10%, rgba(236,143,106,0.26) 0%, rgba(236,143,106,0) 48%),
+                            linear-gradient(135deg, #0f172a 0%, #111c38 55%, #0f284f 100%);
+            --layer: rgba(13,24,45,0.78);
+            --card: rgba(16,26,48,0.75);
+            --border: rgba(255,255,255,0.12);
+            --primary: #4c82ff;
+            --accent: #ec8f6a;
+            --success: #2ec4b6;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --muted: #8c9ac5;
+            --text: #f3f6ff;
+            --shadow: 0 32px 60px rgba(5,12,31,0.45);
+            --radius-lg: 28px;
+            --radius-md: 20px;
+            --radius-sm: 12px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--bg-gradient);
             min-height: 100vh;
-            color: var(--dark);
-            overflow-x: hidden;
+            color: var(--text);
+            padding: clamp(18px, 3vw, 34px);
         }
 
-        .dashboard-container {
-            max-width: 1800px;
+        a { color: inherit; text-decoration: none; }
+
+        .app-shell {
+            max-width: 1500px;
             margin: 0 auto;
-            padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: clamp(18px, 3vw, 30px);
         }
 
-        /* Header Styles */
-        .dashboard-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 25px 35px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .sidebar {
+            background: linear-gradient(160deg, rgba(15,24,47,0.92), rgba(15,27,55,0.72));
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: clamp(24px, 3vw, 32px);
+            display: grid;
+            gap: clamp(26px, 3vw, 34px);
+            backdrop-filter: blur(18px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(76,130,255,0.85), rgba(236,143,106,0.8));
+            display: grid;
+            place-items: center;
+            font-size: 1.2rem;
+        }
+
+        .brand h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-section { display: grid; gap: 16px; }
+        .nav-label { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted); }
+
+        .nav-link {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            color: var(--muted);
+            border: 1px solid transparent;
+            transition: transform 0.25s ease, border 0.25s ease, color 0.25s ease, background 0.25s ease;
+        }
+
+        .nav-link i { font-size: 1rem; }
+        .nav-link span { font-size: 0.95rem; font-weight: 500; }
+
+        .nav-link[data-active="true"],
+        .nav-link:hover {
+            color: var(--text);
+            border-color: var(--border);
+            background: rgba(76,130,255,0.12);
+            transform: translateX(4px);
+        }
+
+        .nav-count {
+            font-size: 0.75rem;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            color: var(--muted);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .main { display: grid; gap: clamp(22px, 4vw, 36px); }
+
+        .page-header {
+            background: linear-gradient(135deg, rgba(14,24,45,0.95), rgba(14,27,54,0.78));
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: clamp(26px, 4vw, 42px);
+            display: grid;
+            gap: clamp(20px, 4vw, 30px);
             position: relative;
             overflow: hidden;
         }
 
-        .dashboard-header::before {
+        .page-header::after {
             content: '';
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 300px;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(67, 97, 238, 0.05));
+            inset: -35% -25% 20% 55%;
+            background: radial-gradient(circle, rgba(76,130,255,0.35), transparent 70%);
             pointer-events: none;
         }
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .header-grid {
             position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 24px;
             z-index: 2;
         }
 
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .logo-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: white;
-            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
-        }
-
-        .logo-text h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin-bottom: 5px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .logo-text p {
-            color: var(--gray);
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .user-section {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .user-avatar {
-            width: 55px;
-            height: 55px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.3rem;
-            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
-        }
-
-        .user-info {
-            text-align: right;
-        }
-
-        .user-name {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--dark);
-            margin-bottom: 4px;
-        }
-
-        .user-role {
-            color: var(--gray);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        /* Navigation Styles */
-        .dashboard-nav {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .nav-scroll {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-
-        .nav-scroll::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .nav-scroll::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
-            border-radius: 10px;
-        }
-
-        .nav-scroll::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-        }
-
-        .nav-btn {
-            padding: 14px 24px;
-            background: rgba(67, 97, 238, 0.08);
-            border: 2px solid transparent;
-            border-radius: 12px;
-            color: var(--primary);
-            text-decoration: none;
-            transition: var(--transition);
+        .header-title h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(1.9rem, 4vw, 2.8rem);
             font-weight: 600;
-            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .header-title p { color: var(--muted); font-size: 0.95rem; }
+
+        .header-actions { display: flex; flex-wrap: wrap; gap: 12px; z-index: 2; }
+
+        .header-btn {
+            display: inline-flex;
             align-items: center;
             gap: 10px;
-            white-space: nowrap;
+            padding: 12px 20px;
+            border-radius: 14px;
+            font-weight: 600;
             font-size: 0.95rem;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.08);
+            color: var(--text);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
         }
 
-        .nav-btn:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+        .header-btn.primary {
+            background: linear-gradient(135deg, #4c82ff, #7aa6ff);
+            border: none;
+            box-shadow: 0 15px 28px rgba(76,130,255,0.25);
         }
 
-        .nav-btn.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+        .header-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(11,19,41,0.35); }
+
+        .user-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.16);
+            color: var(--text);
         }
 
-        /* Stats Grid Styles */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 35px;
-        }
+        .flash-stack { display: grid; gap: 12px; }
 
-        .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: var(--transition);
+        .flash-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            color: var(--text);
             position: relative;
             overflow: hidden;
         }
 
-        .stat-card::before {
+        .flash-card[data-type="success"] { border-color: rgba(46,196,182,0.28); background: rgba(46,196,182,0.14); }
+        .flash-card[data-type="error"] { border-color: rgba(239,71,111,0.28); background: rgba(239,71,111,0.14); }
+        .flash-card[data-type="info"] { border-color: rgba(76,130,255,0.28); background: rgba(76,130,255,0.14); }
+
+        .flash-close {
+            margin-left: auto;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1rem;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: clamp(16px, 3vw, 24px);
+        }
+
+        .insight-card {
+            background: var(--card);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: 22px;
+            display: grid;
+            gap: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .insight-card::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 6px;
-            height: 100%;
-            background: var(--primary);
-            transition: var(--transition);
+            inset: -50% 55% 45% -35%;
+            background: radial-gradient(circle, rgba(76,130,255,0.2), transparent 72%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-        }
+        .insight-card:hover::after { opacity: 1; }
 
-        .stat-card:hover::before {
-            width: 8px;
-        }
+        .insight-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 
-        .stat-card.success::before { background: var(--success); }
-        .stat-card.warning::before { background: var(--warning); }
-        .stat-card.danger::before { background: var(--danger); }
-        .stat-card.info::before { background: var(--info); }
-
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-            color: white;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        }
-
-        .stat-card.success .stat-icon { background: linear-gradient(135deg, var(--success), #0099cc); }
-        .stat-card.warning .stat-icon { background: linear-gradient(135deg, var(--warning), #e67e22); }
-        .stat-card.danger .stat-icon { background: linear-gradient(135deg, var(--danger), #c2185b); }
-        .stat-card.info .stat-icon { background: linear-gradient(135deg, var(--info), #1976d2); }
-
-        .stat-meta {
-            text-align: right;
-        }
-
-        .stat-trend {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+        .insight-heading {
+            font-size: 0.78rem;
             font-weight: 600;
-            background: rgba(46, 204, 113, 0.1);
-            color: #27ae60;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--muted);
         }
 
-        .trend-negative {
-            background: rgba(231, 76, 60, 0.1);
-            color: #e74c3c;
+        .insight-value {
+            font-size: clamp(1.7rem, 3vw, 2.4rem);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
         }
 
-        .stat-value {
-            font-size: 2.8rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, var(--dark), #4a5568);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .insight-meta { font-size: 0.86rem; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+
+        .progress {
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
         }
 
-        .stat-label {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 8px;
+        .progress span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #4c82ff, #76a4ff);
+            width: var(--percent, 0%);
         }
 
-        .stat-description {
-            color: var(--gray);
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
+        .insight-card.pending .progress span { background: linear-gradient(135deg, #ffd166, #fca311); }
+        .insight-card.approved .progress span { background: linear-gradient(135deg, #2ec4b6, #1cae9c); }
+        .insight-card.risk .progress span { background: linear-gradient(135deg, #ef476f, #d42552); }
+        .insight-card.rejection .progress span { background: linear-gradient(135deg, #ff7b7b, #ff4d6d); }
 
-        /* Dashboard Content */
-        .dashboard-content {
+        .panels-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            margin-bottom: 35px;
+            grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+            gap: clamp(18px, 4vw, 28px);
         }
 
-        .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .panel {
+            background: var(--card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: clamp(22px, 4vw, 32px);
+            display: grid;
+            gap: 22px;
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        .panel-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .panel-header h3 { font-size: 1.15rem; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; }
+        .panel-header h3 i { color: #9eb8ff; }
+        .panel-subtitle { font-size: 0.9rem; color: var(--muted); }
+
+        .chart-wrapper {
+            display: grid;
+            gap: 18px;
+            background: rgba(255,255,255,0.04);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: clamp(16px, 3vw, 22px);
         }
 
-        .card-header h2 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .chart-area { background: rgba(14,20,35,0.6); border-radius: var(--radius-sm); padding: 16px; border: 1px solid rgba(255,255,255,0.06); }
+        .chart-label { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+
+        .metric-stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+
+        .metric-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            display: grid;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--muted);
         }
 
-        .card-header h2 i {
-            color: var(--primary);
-        }
+        .metric-card strong { font-size: 1.1rem; color: var(--text); }
 
-        /* Activity Styles */
-        .activity-list {
-            list-style: none;
-        }
+        .activity-list { display: grid; gap: 16px; }
 
         .activity-item {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            padding: 18px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-            transition: var(--transition);
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 16px;
+            padding: 16px 18px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.05);
+            transition: transform 0.2s ease, border 0.2s ease;
         }
 
-        .activity-item:hover {
-            background: rgba(67, 97, 238, 0.03);
-            margin: 0 -20px;
-            padding: 18px 20px;
-            border-radius: 10px;
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
+        .activity-item:hover { transform: translateY(-4px); border-color: rgba(76,130,255,0.4); }
 
         .activity-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            color: white;
-            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+            background: linear-gradient(135deg, rgba(76,130,255,0.24), rgba(76,130,255,0.1));
+            color: #bcd5ff;
         }
 
-        .activity-icon.approved { background: linear-gradient(135deg, var(--success), #0099cc); }
-        .activity-icon.pending { background: linear-gradient(135deg, var(--warning), #e67e22); }
-        .activity-icon.rejected { background: linear-gradient(135deg, var(--danger), #c2185b); }
-        .activity-icon.default { background: linear-gradient(135deg, var(--gray), #95a5a6); }
+        .activity-icon.approved { background: rgba(46,196,182,0.2); color: #96f1e7; }
+        .activity-icon.pending { background: rgba(255,209,102,0.2); color: #ffe5a1; }
+        .activity-icon.rejected { background: rgba(239,71,111,0.2); color: #ff9bb0; }
 
-        .activity-content {
-            flex: 1;
+        .activity-title { font-weight: 600; font-size: 0.95rem; }
+        .activity-desc { font-size: 0.82rem; color: var(--muted); }
+
+        .actions-panel {
+            background: var(--card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: clamp(22px, 4vw, 32px);
+            display: grid;
+            gap: 20px;
         }
 
-        .activity-title {
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--dark);
-        }
-
-        .activity-description {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        /* Quick Actions */
-        .quick-actions-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .section-header h2 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-header h2 i {
-            color: var(--primary);
-        }
-
-        .action-grid {
+        .actions-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 18px;
         }
 
-        .action-btn {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 20px;
-            background: rgba(67, 97, 238, 0.08);
-            border: 2px solid transparent;
-            border-radius: 14px;
-            color: var(--primary);
-            text-decoration: none;
-            transition: var(--transition);
-            font-weight: 600;
+        .action-tile {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            display: grid;
+            gap: 10px;
+            transition: transform 0.25s ease, border 0.25s ease;
         }
 
-        .action-btn:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(67, 97, 238, 0.3);
-        }
+        .action-tile:hover { transform: translateY(-4px); border-color: rgba(76,130,255,0.35); }
 
-        .action-btn i {
-            font-size: 1.4rem;
-            width: 24px;
-        }
+        .tile-title { font-weight: 600; font-size: 0.95rem; }
+        .tile-desc { font-size: 0.8rem; color: var(--muted); }
+        .tile-link { font-size: 0.78rem; font-weight: 600; color: #b8c6ff; display: inline-flex; align-items: center; gap: 8px; }
 
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .dashboard-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            }
+        .badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); color: var(--muted); }
+
+        @media (max-width: 1180px) {
+            .app-shell { grid-template-columns: 1fr; }
+            .sidebar { position: sticky; top: 18px; }
+            .panels-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 15px;
-            }
-            
-            .dashboard-header {
-                padding: 20px;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 20px;
-                text-align: center;
-            }
-            
-            .user-info {
-                text-align: center;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stat-card {
-                padding: 25px;
-            }
-            
-            .action-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .nav-scroll {
-                gap: 8px;
-            }
-            
-            .nav-btn {
-                padding: 12px 18px;
-                font-size: 0.9rem;
-            }
+            body { padding: 16px; }
+            .header-actions { width: 100%; }
+            .header-btn { flex: 1; justify-content: center; }
+            .insights-grid { grid-template-columns: 1fr; }
+            .actions-grid { grid-template-columns: 1fr; }
         }
 
-        @media (max-width: 480px) {
-            .stat-value {
-                font-size: 2.2rem;
-            }
-            
-            .logo-text h1 {
-                font-size: 1.8rem;
-            }
-            
-            .content-card {
-                padding: 20px;
-            }
+        @media (max-width: 540px) {
+            .sidebar { padding: 24px 20px; }
+            .nav-link { grid-template-columns: auto 1fr; }
+            .nav-count { justify-self: flex-end; }
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-dark);
-        }
-
-        /* Loading Animation */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        /* Badge Styles */
-        .badge {
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 4px 8px;
-        }
+        .reveal { opacity: 0; transform: translateY(24px); }
+        .reveal.show { opacity: 1; transform: translateY(0); transition: opacity 0.6s ease, transform 0.6s ease; }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Header Section -->
-        <div class="dashboard-header fade-in">
-            <div class="header-content">
-                <div class="logo-section">
-                    <div class="logo-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div class="logo-text">
-                        <h1>CRIMAP Financial</h1>
-                        <p>Credit Risk Management Platform</p>
-                    </div>
-                </div>
-                <div class="user-section">
-                    <div class="user-info">
-                        <div class="user-name">{{ username }}</div>
-                        <div class="user-role">System Administrator</div>
-                    </div>
-                    <div class="user-avatar">
-                        {{ username[0]|upper }}
-                    </div>
-                </div>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-shield"></i></div>
+                <h1>CRIMAP Admin</h1>
             </div>
-        </div>
 
-        <!-- Navigation -->
-        <div class="dashboard-nav fade-in">
-            <div class="nav-scroll">
-                <a href="/dashboard/admin" class="nav-btn active">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
+            <div class="nav-section">
+                <span class="nav-label">workspace</span>
+                <a class="nav-link" data-active="true" href="{{ url_for('dashboard') }}">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Control Center</span>
+                    <span class="nav-count">Live</span>
                 </a>
-                <a href="/clients" class="nav-btn">
-                    <i class="fas fa-users"></i> Clients
+                <a class="nav-link" href="/clients">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Clients</span>
+                    <span class="nav-count">{{ total_clients }}</span>
                 </a>
-                <a href="/loans" class="nav-btn">
-                    <i class="fas fa-file-invoice-dollar"></i> Loans
+                <a class="nav-link" href="/loans">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Loan Portfolio</span>
+                    <span class="nav-count">{{ total_loans }}</span>
                 </a>
-                <a href="/behavior-monitoring" class="nav-btn">
-                    <i class="fas fa-chart-line"></i> Behavior Monitoring
-                </a>
-                <a href="/interventions" class="nav-btn">
-                    <i class="fas fa-comment-medical"></i> Interventions
-                </a>
-                <a href="/analytics" class="nav-btn">
-                    <i class="fas fa-chart-pie"></i> Analytics
-                </a>
-                <a href="/risk" class="nav-btn">
-                    <i class="fas fa-exclamation-triangle"></i> Risk Analytics
-                </a>
-                <a href="/predictions" class="nav-btn">
-                    <i class="fas fa-brain"></i> Predictions
-                </a>
-            </div>
-        </div>
-
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <!-- CRB Card - Option 2 Style -->
-            <div class="stat-card info fade-in">
-                <div class="stat-header">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #4361ee, #3a0ca3);">
-                        <i class="fas fa-search-dollar"></i>
-                    </div>
-                    <div class="stat-meta">
-                        <span class="badge bg-success">Live</span>
-                    </div>
-                </div>
-                <div class="stat-value">{{ total_crb_checks if total_crb_checks is defined else '0' }}</div>
-                <div class="stat-label">Credit Monitoring</div>
-                <div class="stat-description">Real-time bureau checks & risk analysis</div>
-            </div>
-
-            <!-- Total Users -->
-            <div class="stat-card info fade-in">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-meta">
-                        <div class="stat-trend trend-positive">
-                            <i class="fas fa-arrow-up"></i> 12%
-                        </div>
-                    </div>
-                </div>
-                <div class="stat-value">{{ total_users }}</div>
-                <div class="stat-label">Total Users</div>
-                <div class="stat-description">Active system users and administrators</div>
-            </div>
-
-            <!-- Total Clients -->
-            <div class="stat-card fade-in">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ total_clients }}</div>
-                <div class="stat-label">Total Clients</div>
-                <div class="stat-description">Registered clients in the system</div>
-            </div>
-
-            <!-- Total Loans -->
-            <div class="stat-card success fade-in">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                    </div>
-                    <div class="stat-meta">
-                        <div class="stat-trend trend-positive">
-                            <i class="fas fa-arrow-up"></i> 8%
-                        </div>
-                    </div>
-                </div>
-                <div class="stat-value">{{ total_loans }}</div>
-                <div class="stat-label">Total Loans</div>
-                <div class="stat-description">All time loan applications</div>
-            </div>
-
-            <!-- Approved Loans -->
-            <div class="stat-card success fade-in">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ approved_loans }}</div>
-                <div class="stat-label">Approved Loans</div>
-                <div class="stat-description">Ready for disbursement</div>
-                {% if approval_rate > 0 %}
-                <div class="stat-trend trend-positive" style="margin-top: 10px;">
-                    {{ approval_rate }}% approval rate
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Pending Approval -->
-            <div class="stat-card warning fade-in">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ pending_loans }}</div>
-                <div class="stat-label">Pending Approval</div>
-                <div class="stat-description">Requires immediate attention</div>
-            </div>
-
-            <!-- Rejected Loans -->
-            <div class="stat-card danger fade-in">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fas fa-times-circle"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ rejected_loans }}</div>
-                <div class="stat-label">Rejected Loans</div>
-                <div class="stat-description">
-                    {% if rejected_loans == 0 %}
-                    No rejections this period
-                    {% else %}
-                    Applications rejected
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- High Risk Loans -->
-            <div class="stat-card danger fade-in">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ high_risk_loans }}</div>
-                <div class="stat-label">High Risk Loans</div>
-                <div class="stat-description">Behavior score below 40</div>
-            </div>
-
-            <!-- Average Loan Amount -->
-            <div class="stat-card info fade-in">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                </div>
-                <div class="stat-value">KSh {{ "%.0f"|format(avg_loan_amount) }}</div>
-                <div class="stat-label">Average Loan</div>
-                <div class="stat-description">Across all approved loans</div>
-            </div>
-        </div>
-
-        <!-- Dashboard Content -->
-        <div class="dashboard-content">
-            <!-- Performance Overview -->
-            <div class="content-card fade-in">
-                <div class="card-header">
-                    <h2><i class="fas fa-chart-line"></i> Performance Overview</h2>
-                    <button class="btn btn-sm btn-outline-primary">View Report</button>
-                </div>
-                <div style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 40px 20px; border-radius: 12px; text-align: center; color: var(--gray);">
-                    <i class="fas fa-chart-bar" style="font-size: 3.5rem; margin-bottom: 20px; opacity: 0.6;"></i>
-                    <h4 style="color: var(--dark); margin-bottom: 10px;">Performance Analytics</h4>
-                    <p>Real-time charts and performance metrics will be displayed here</p>
-                    <small>Integration with analytics dashboard required</small>
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="content-card fade-in">
-                <div class="card-header">
-                    <h2><i class="fas fa-bell"></i> Recent Activity</h2>
-                    <button class="btn btn-sm btn-outline-primary">See All</button>
-                </div>
-                <ul class="activity-list">
-                    {% if recent_loans %}
-                        {% for loan in recent_loans %}
-                        <li class="activity-item">
-                            <div class="activity-icon {{ loan.status }}">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">
-                                    {{ loan.status|title }} Loan Application
-                                </div>
-                                <div class="activity-description">
-                                    KSh {{ "%.2f"|format(loan.amount) }} • {{ loan.created_at.strftime('%b %d, %Y') if loan.created_at else 'N/A' }}
-                                </div>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    {% else %}
-                        <li class="activity-item">
-                            <div class="activity-icon default">
-                                <i class="fas fa-info-circle"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">No recent activity</div>
-                                <div class="activity-description">Loan applications will appear here</div>
-                            </div>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions-section fade-in">
-            <div class="section-header">
-                <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
-                <span class="text-muted">Frequently used tasks</span>
-            </div>
-            <div class="action-grid">
-                <a href="{{ url_for('clients_page') }}" class="action-btn">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Add New Client</span>
-                </a>
-                <a href="/loans/apply" class="action-btn">
-                    <i class="fas fa-file-medical"></i>
-                    <span>New Loan Application</span>
-                </a>
-                <a href="/behavior-monitoring" class="action-btn">
-                    <i class="fas fa-chart-line"></i>
+                <a class="nav-link" href="/behavior-monitoring">
+                    <i class="fa-solid fa-chart-line"></i>
                     <span>Behavior Monitoring</span>
+                    <span class="nav-count">Watch</span>
                 </a>
-                <a href="{{ url_for('crb_dashboard') }}" class="action-btn">
-                    <i class="fas fa-search"></i>
-                    <span>CRB Monitoring</span>
+                <a class="nav-link" href="{{ url_for('crb_dashboard') }}">
+                    <i class="fa-solid fa-magnifying-glass-dollar"></i>
+                    <span>CRB Dashboard</span>
+                    <span class="nav-count">{{ crb_checks }}</span>
                 </a>
-                <a href="/interventions" class="action-btn">
-                    <i class="fas fa-comment-medical"></i>
-                    <span>Manage Interventions</span>
+                <a class="nav-link" href="/crb/history">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>CRB History</span>
+                    <span class="nav-count">Logs</span>
                 </a>
-                <a href="/reports" class="action-btn">
-                    <i class="fas fa-download"></i>
-                    <span>Generate Reports</span>
+                <a class="nav-link" href="/interventions">
+                    <i class="fa-solid fa-handshake-angle"></i>
+                    <span>Interventions</span>
+                    <span class="nav-count">Act</span>
+                </a>
+                <a class="nav-link" href="/analytics">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <span>Analytics</span>
+                    <span class="nav-count">Insights</span>
+                </a>
+                <a class="nav-link" href="/risk">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Risk Center</span>
+                    <span class="nav-count">Assess</span>
+                </a>
+                <a class="nav-link" href="/predictions">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>Predictions</span>
+                    <span class="nav-count">AI</span>
+                </a>
+                <a class="nav-link" href="/logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Logout</span>
+                    <span class="nav-count">Exit</span>
                 </a>
             </div>
-        </div>
+
+            <div class="sidebar-footer">
+                <strong>{{ total_users }}</strong> system users • <strong>{{ total_loans }}</strong> portfolio files • <strong>{{ crb_checks }}</strong> CRB checks
+            </div>
+        </aside>
+
+        <main class="main">
+            <section class="page-header reveal">
+                <div class="header-grid">
+                    <div class="header-title">
+                        <h2>Admin Control Center</h2>
+                        <p>Welcome back, <strong>{{ username }}</strong>. Oversee platform health, manage portfolios, and stay ahead of risk signals.</p>
+                    </div>
+                    <div class="user-chip">
+                        <i class="fa-solid fa-user-shield"></i>
+                        System Administrator
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <a class="header-btn primary" href="/loans"><i class="fa-solid fa-magnifying-glass-dollar"></i> Review Loan Queue</a>
+                    <a class="header-btn" href="/analytics"><i class="fa-solid fa-chart-column"></i> Deep Analytics</a>
+                    <a class="header-btn" href="/reports"><i class="fa-solid fa-download"></i> Export Summary</a>
+                </div>
+            </section>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <section class="flash-stack reveal">
+                    {% for category, message in messages %}
+                    <div class="flash-card" data-type="{{ category }}">
+                        <i class="fa-solid {% if category == 'success' %}fa-circle-check{% elif category == 'error' %}fa-triangle-exclamation{% elif category == 'info' %}fa-circle-info{% else %}fa-bell{% endif %}"></i>
+                        <span>{{ message }}</span>
+                        <button class="flash-close" aria-label="Dismiss">&times;</button>
+                    </div>
+                    {% endfor %}
+                </section>
+                {% endif %}
+            {% endwith %}
+
+            <section class="insights-grid">
+                <article class="insight-card reveal">
+                    <div class="insight-header">
+                        <span class="insight-heading">credit monitoring</span>
+                        <span class="badge">Live</span>
+                    </div>
+                    <div class="insight-value">{{ crb_checks }}</div>
+                    <div class="insight-meta">
+                        <span>CRB checks run</span>
+                        <span>{{ total_loans }} files</span>
+                    </div>
+                    <div class="progress"><span style="--percent: 100%;"></span></div>
+                </article>
+
+                <article class="insight-card approved reveal">
+                    {% set approval_rate = ((approved_loans / total_loans) * 100)|round(1) if total_loans else 0 %}
+                    <div class="insight-header">
+                        <span class="insight-heading">approved loans</span>
+                        <span class="badge">{{ approval_rate }}%</span>
+                    </div>
+                    <div class="insight-value">{{ approved_loans }}</div>
+                    <div class="insight-meta">
+                        <span>Ready for disbursement</span>
+                        <span>{{ total_loans }} total</span>
+                    </div>
+                    <div class="progress"><span style="--percent: {{ approval_rate }}%;"></span></div>
+                </article>
+
+                <article class="insight-card pending reveal">
+                    {% set pending_percent = ((pending_loans / total_loans) * 100)|round(1) if total_loans else 0 %}
+                    <div class="insight-header">
+                        <span class="insight-heading">pending review</span>
+                        <span class="badge">Queue</span>
+                    </div>
+                    <div class="insight-value">{{ pending_loans }}</div>
+                    <div class="insight-meta">
+                        <span>Awaiting decisions</span>
+                        <span>{{ pending_percent }}%</span>
+                    </div>
+                    <div class="progress"><span style="--percent: {{ pending_percent }}%;"></span></div>
+                </article>
+
+                <article class="insight-card rejection reveal">
+                    {% set rejection_rate = ((rejected_loans / total_loans) * 100)|round(1) if total_loans else 0 %}
+                    <div class="insight-header">
+                        <span class="insight-heading">rejected loans</span>
+                        <span class="badge">{{ rejection_rate }}%</span>
+                    </div>
+                    <div class="insight-value">{{ rejected_loans }}</div>
+                    <div class="insight-meta">
+                        <span>Need re-engagement</span>
+                        <span>{{ rejection_rate }}% of total</span>
+                    </div>
+                    <div class="progress"><span style="--percent: {{ rejection_rate }}%;"></span></div>
+                </article>
+
+                <article class="insight-card risk reveal">
+                    {% set risk_ratio = ((high_risk_loans / total_loans) * 100)|round(1) if total_loans else 0 %}
+                    <div class="insight-header">
+                        <span class="insight-heading">high risk watch</span>
+                        <span class="badge">{{ risk_ratio }}%</span>
+                    </div>
+                    <div class="insight-value">{{ high_risk_loans }}</div>
+                    <div class="insight-meta">
+                        <span>Flagged approvals</span>
+                        <span>{{ approved_loans }} cleared</span>
+                    </div>
+                    <div class="progress"><span style="--percent: {{ risk_ratio }}%;"></span></div>
+                </article>
+            </section>
+
+            <section class="panels-grid">
+                <article class="panel reveal">
+                    <div class="panel-header">
+                        <div>
+                            <h3><i class="fa-solid fa-chart-line"></i> Performance Overview</h3>
+                            <p class="panel-subtitle">Portfolio momentum across loans, risk buckets, and bureau signals.</p>
+                        </div>
+                        <a href="{{ url_for('report_financial_summary') }}" class="tile-link">Download report <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                    <div class="chart-wrapper">
+                        <div class="chart-area">
+                            <div class="chart-label">Loans Trend (6 months)</div>
+                            <canvas id="trendChart" height="200"></canvas>
+                        </div>
+                        <div class="chart-area">
+                            <div class="chart-label">Risk Distribution</div>
+                            <canvas id="riskChart" height="180"></canvas>
+                        </div>
+                        <div class="metric-stack">
+                            <div class="metric-card">
+                                <span>Blacklist Rate</span>
+                                <strong id="blacklistRate">–</strong>
+                            </div>
+                            <div class="metric-card">
+                                <span>Average Credit Score</span>
+                                <strong id="avgCreditScore">–</strong>
+                            </div>
+                            <div class="metric-card">
+                                <span>Average Loan</span>
+                                <strong>KSh {{ "%.0f"|format(avg_loan_amount) }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="panel reveal">
+                    <div class="panel-header">
+                        <div>
+                            <h3><i class="fa-solid fa-bell"></i> Recent Activity</h3>
+                            <p class="panel-subtitle">Latest actions across loan applications.</p>
+                        </div>
+                    </div>
+                    <div class="activity-list">
+                        {% if recent_loans %}
+                            {% for loan in recent_loans %}
+                            <div class="activity-item">
+                                <div class="activity-icon {{ loan.status }}">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                                </div>
+                                <div>
+                                    <div class="activity-title">{{ loan.status|title }} loan • KSh {{ "%.2f"|format(loan.amount) }}</div>
+                                    <div class="activity-desc">{{ loan.created_at.strftime('%b %d, %Y') if loan.created_at else 'N/A' }} · Purpose: {{ loan.purpose or '–' }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fa-solid fa-info"></i>
+                                </div>
+                                <div>
+                                    <div class="activity-title">No recent activity</div>
+                                    <div class="activity-desc">New submissions, approvals, and interventions will appear here.</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </article>
+            </section>
+
+            <section class="actions-panel reveal">
+                <div class="panel-header">
+                    <div>
+                        <h3><i class="fa-solid fa-bolt"></i> Quick Playbook</h3>
+                        <p class="panel-subtitle">Shortcut to the tasks you run most.</p>
+                    </div>
+                </div>
+                <div class="actions-grid">
+                    <a class="action-tile" href="{{ url_for('clients_page') }}">
+                        <div class="tile-title">Add new client</div>
+                        <p class="tile-desc">Register client onboarding details and assign primary officer.</p>
+                        <span class="tile-link">Open clients <i class="fa-solid fa-arrow-right"></i></span>
+                    </a>
+                    <a class="action-tile" href="/loans/apply">
+                        <div class="tile-title">Create loan application</div>
+                        <p class="tile-desc">Capture loan request, product type, and supporting documents.</p>
+                        <span class="tile-link">Start application <i class="fa-solid fa-arrow-right"></i></span>
+                    </a>
+                    <a class="action-tile" href="{{ url_for('crb_dashboard') }}">
+                        <div class="tile-title">Run CRB monitoring</div>
+                        <p class="tile-desc">Evaluate bureau signals ahead of approvals and renewals.</p>
+                        <span class="tile-link">Launch CRB desk <i class="fa-solid fa-arrow-right"></i></span>
+                    </a>
+                    <a class="action-tile" href="/behavior-monitoring">
+                        <div class="tile-title">Track borrower behavior</div>
+                        <p class="tile-desc">Flag repayment anomalies and trigger interventions.</p>
+                        <span class="tile-link">View dashboards <i class="fa-solid fa-arrow-right"></i></span>
+                    </a>
+                    <form class="action-tile" method="POST" action="/admin/maintenance/create-indexes">
+                        <div class="tile-title">Ensure CRB indexes</div>
+                        <p class="tile-desc">Run maintenance to keep bureau lookups lightning fast.</p>
+                        <button type="submit" class="tile-link" style="background: none; border: none; padding: 0; cursor: pointer;">
+                            Execute task <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+                    <a class="action-tile" href="/reports">
+                        <div class="tile-title">Generate portfolio report</div>
+                        <p class="tile-desc">Download CSV summaries for compliance and board reviews.</p>
+                        <span class="tile-link">Go to reports <i class="fa-solid fa-arrow-right"></i></span>
+                    </a>
+                </div>
+            </section>
+        </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add staggered animations to stat cards
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-            });
-
-            // Add hover effects to navigation
-            const navButtons = document.querySelectorAll('.nav-btn');
-            navButtons.forEach(btn => {
-                btn.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-2px)';
-                });
-                btn.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-
-            // Auto-refresh simulation
-            setInterval(() => {
-                console.log('Dashboard data refresh simulated');
-            }, 60000);
-
-            // Add click effects to action buttons
-            const actionButtons = document.querySelectorAll('.action-btn');
-            actionButtons.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    // Add ripple effect
-                    const ripple = document.createElement('span');
-                    const rect = this.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    const x = e.clientX - rect.left - size / 2;
-                    const y = e.clientY - rect.top - size / 2;
-                    
-                    ripple.style.cssText = `
-                        position: absolute;
-                        border-radius: 50%;
-                        background: rgba(255, 255, 255, 0.6);
-                        transform: scale(0);
-                        animation: ripple 0.6s linear;
-                        width: ${size}px;
-                        height: ${size}px;
-                        left: ${x}px;
-                        top: ${y}px;
-                    `;
-                    
-                    this.appendChild(ripple);
-                    setTimeout(() => ripple.remove(), 600);
-                });
-            });
-
-            // Add CSS for ripple effect
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes ripple {
-                    to {
-                        transform: scale(4);
-                        opacity: 0;
+        document.addEventListener('DOMContentLoaded', () => {
+            const revealItems = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                        observer.unobserve(entry.target);
                     }
-                }
-                .action-btn {
-                    position: relative;
-                    overflow: hidden;
-                }
-            `;
-            document.head.appendChild(style);
+                });
+            }, { threshold: 0.2 });
+
+            revealItems.forEach(item => observer.observe(item));
+
+            document.querySelectorAll('.flash-close').forEach(btn => {
+                btn.addEventListener('click', () => btn.parentElement.remove());
+            });
+
+            fetch('/api/admin/overview')
+                .then(r => r.ok ? r.json() : Promise.reject())
+                .then(data => {
+                    const months = (data.monthly_trends || []).map(m => m.month);
+                    const performing = (data.monthly_trends || []).map(m => m.performing || 0);
+                    const watchlist = (data.monthly_trends || []).map(m => m.watchlist || 0);
+                    const defaulted = (data.monthly_trends || []).map(m => m.defaulted || 0);
+
+                    const lineContext = document.getElementById('trendChart');
+                    if (lineContext && window.Chart) {
+                        new Chart(lineContext, {
+                            type: 'line',
+                            data: {
+                                labels: months,
+                                datasets: [
+                                    { label: 'Performing', data: performing, borderColor: '#2ec4b6', backgroundColor: 'rgba(46,196,182,0.16)', tension: 0.32, fill: true },
+                                    { label: 'Watchlist', data: watchlist, borderColor: '#ffd166', backgroundColor: 'rgba(255,209,102,0.18)', tension: 0.32, fill: true },
+                                    { label: 'Defaulted', data: defaulted, borderColor: '#ef476f', backgroundColor: 'rgba(239,71,111,0.18)', tension: 0.32, fill: true }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: { legend: { labels: { color: '#c8d2f2' } } },
+                                scales: {
+                                    x: { ticks: { color: '#93a0ca' }, grid: { color: 'rgba(147,160,202,0.1)' } },
+                                    y: { beginAtZero: true, ticks: { color: '#93a0ca' }, grid: { color: 'rgba(147,160,202,0.08)' } }
+                                }
+                            }
+                        });
+                    }
+
+                    const riskContext = document.getElementById('riskChart');
+                    const labels = (data.risk_distribution && data.risk_distribution.labels) || ['Low','Medium','High'];
+                    const values = (data.risk_distribution && data.risk_distribution.data) || [0,0,0];
+                    const colors = (data.risk_distribution && data.risk_distribution.colors) || ['#2ec4b6','#ffd166','#ef476f'];
+                    if (riskContext && window.Chart) {
+                        new Chart(riskContext, {
+                            type: 'doughnut',
+                            data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }] },
+                            options: { plugins: { legend: { position: 'bottom', labels: { color: '#c8d2f2' } } } }
+                        });
+                    }
+
+                    const bl = data.crb_stats ? (data.crb_stats.blacklist_rate || 0) : 0;
+                    const avg = data.crb_stats ? (data.crb_stats.avg_credit_score || 0) : 0;
+                    const blEl = document.getElementById('blacklistRate');
+                    const avgEl = document.getElementById('avgCreditScore');
+                    if (blEl) blEl.textContent = `${bl}%`;
+                    if (avgEl) avgEl.textContent = Math.round(avg);
+                })
+                .catch(() => {
+                    // leave placeholders if the endpoint is unavailable
+                });
         });
     </script>
 </body>

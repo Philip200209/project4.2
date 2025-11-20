@@ -1,240 +1,144 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loans Management - CRIMAP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Navigation Header -->
-    <nav class="bg-blue-800 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <i class="fas fa-hand-holding-usd text-2xl"></i>
-                    <h1 class="text-xl font-bold">CRIMAP - Loan Management</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <span class="bg-blue-600 px-3 py-1 rounded-full text-sm">
-                        <i class="fas fa-user mr-1"></i>{{ username }}
-                    </span>
-                    {% if current_user.role == 'borrower' %}
-                    <a href="{{ url_for('borrower_dashboard') }}" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition duration-200">
-                        <i class="fas fa-home mr-2"></i>Dashboard
-                    </a>
-                    {% else %}
-                    <a href="{{ url_for('dashboard') }}" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition duration-200">
-                        <i class="fas fa-home mr-2"></i>Dashboard
-                    </a>
-                    {% endif %}
-                    <a href="{{ url_for('logout') }}" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition duration-200">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+{% extends 'base.html' %}
+{% block title %}Loans Management · CRIMAP{% endblock %}
+{% block extra_head %}
+<style>
+    .loans-table,
+    .loans-table th,
+    .loans-table td {
+        background: #fefefe;
+        color: #1f1b2e;
+    }
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="container mx-auto px-4 py-4">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'bg-red-100 border border-red-400 text-red-700' if category == 'error' else 'bg-green-100 border border-green-400 text-green-700' }} px-4 py-3 rounded relative mb-4">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
+    .loans-table tbody tr:nth-child(2n) {
+        background: #f0f3f8;
+    }
+
+    .loans-table tbody tr:hover {
+        background: rgba(76, 130, 255, 0.12);
+    }
+
+    .loans-table .text-muted {
+        color: #5f6a86 !important;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-card">
+    <div class="header" style="border: none; padding: 0; margin-bottom: 24px;">
+        <div>
+            <h2><i class="fas fa-clipboard-list"></i> Loans Management</h2>
+            <p class="text-muted">Manage and review all loan applications in one workspace.</p>
+        </div>
+        {% if current_user.role == 'borrower' %}
+        <a href="{{ url_for('apply_loan') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Apply for Loan
+        </a>
         {% endif %}
-    {% endwith %}
+    </div>
 
-    <!-- Main Content -->
-    <div class="container mx-auto px-4 py-8">
-        <!-- Page Header -->
-        <div class="mb-8">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-800 mb-2">
-                        <i class="fas fa-clipboard-list text-blue-600 mr-3"></i>
-                        Loans Management
-                    </h2>
-                    <p class="text-gray-600">Manage and review all loan applications</p>
-                </div>
-                <div class="flex space-x-4">
-                    {% if current_user.role == 'borrower' %}
-                    <a href="{{ url_for('apply_loan') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-200">
-                        <i class="fas fa-plus mr-2"></i>Apply for Loan
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
+    <div class="stats-grid" style="margin-bottom: 26px;">
+        <div class="stat-card">
+            <h3><i class="fas fa-file-invoice-dollar"></i> Total Loans</h3>
+            <div class="count">{{ total_loans }}</div>
+            <span class="trend">Across all statuses</span>
         </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
-                <div class="flex items-center">
-                    <div class="bg-blue-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-file-invoice-dollar text-blue-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 text-sm">Total Loans</p>
-                        <p class="text-2xl font-bold text-gray-800">{{ total_loans }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
-                <div class="flex items-center">
-                    <div class="bg-green-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 text-sm">Approved</p>
-                        <p class="text-2xl font-bold text-gray-800">{{ approved_loans }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
-                <div class="flex items-center">
-                    <div class="bg-yellow-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 text-sm">Pending</p>
-                        <p class="text-2xl font-bold text-gray-800">{{ pending_loans }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
-                <div class="flex items-center">
-                    <div class="bg-red-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-times-circle text-red-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 text-sm">Rejected</p>
-                        <p class="text-2xl font-bold text-gray-800">{{ rejected_loans }}</p>
-                    </div>
-                </div>
-            </div>
+        <div class="stat-card approved">
+            <h3><i class="fas fa-check-circle"></i> Approved</h3>
+            <div class="count">{{ approved_loans }}</div>
+            <span class="trend">Ready for disbursement</span>
         </div>
-
-        <!-- Loans Table -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-800">
-                    <i class="fas fa-list mr-2"></i>
-                    {% if current_user.role == 'borrower' %}
-                    My Loan Applications
-                    {% else %}
-                    All Loan Applications
-                    {% endif %}
-                </h3>
-            </div>
-            
-            {% if loans %}
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purpose</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Risk Score</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
-                            {% if current_user.role in ['admin', 'loan_officer'] %}
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            {% endif %}
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        {% for loan in loans %}
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ loan.client_name }}</div>
-                                <div class="text-sm text-gray-500">{{ loan.client_email }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">KSh {{ "%.2f"|format(loan.amount) }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ loan.term }} months</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ loan.purpose }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {% if loan.status == 'approved' %}bg-green-100 text-green-800
-                                    {% elif loan.status == 'pending' %}bg-yellow-100 text-yellow-800
-                                    {% else %}bg-red-100 text-red-800{% endif %}">
-                                    {{ loan.status|title }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex items-center">
-                                    <span class="mr-2">{{ "%.1f"|format(loan.risk_score) }}%</span>
-                                    <div class="w-16 bg-gray-200 rounded-full h-2">
-                                        <div class="h-2 rounded-full 
-                                            {% if loan.risk_score < 40 %}bg-green-500
-                                            {% elif loan.risk_score < 70 %}bg-yellow-500
-                                            {% else %}bg-red-500{% endif %}" 
-                                            style="width: {{ loan.risk_score }}%">
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ loan.created_at.strftime('%Y-%m-%d') }}
-                            </td>
-                            {% if current_user.role in ['admin', 'loan_officer'] %}
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <form action="{{ url_for('update_loan_status', loan_id=loan.id) }}" method="POST" class="flex space-x-2">
-                                    {% if loan.status != 'approved' %}
-                                    <button type="submit" name="status" value="approved" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition duration-200">
-                                        Approve
-                                    </button>
-                                    {% endif %}
-                                    {% if loan.status != 'rejected' %}
-                                    <button type="submit" name="status" value="rejected" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition duration-200">
-                                        Reject
-                                    </button>
-                                    {% endif %}
-                                </form>
-                            </td>
-                            {% endif %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="text-center py-12">
-                <div class="mx-auto h-24 w-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                    <i class="fas fa-file-invoice-dollar text-gray-400 text-3xl"></i>
-                </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No Loan Applications</h3>
-                <p class="text-gray-500 mb-6">
-                    {% if current_user.role == 'borrower' %}
-                    You haven't applied for any loans yet.
-                    {% else %}
-                    There are no loan applications in the system.
-                    {% endif %}
-                </p>
-                {% if current_user.role == 'borrower' %}
-                <a href="{{ url_for('apply_loan') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-200">
-                    <i class="fas fa-plus mr-2"></i>Apply for Your First Loan
-                </a>
-                {% endif %}
-            </div>
-            {% endif %}
+        <div class="stat-card pending">
+            <h3><i class="fas fa-clock"></i> Pending</h3>
+            <div class="count">{{ pending_loans }}</div>
+            <span class="trend">Awaiting decision</span>
+        </div>
+        <div class="stat-card rejected">
+            <h3><i class="fas fa-times-circle"></i> Rejected</h3>
+            <div class="count">{{ rejected_loans }}</div>
+            <span class="trend">Requires follow-up</span>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-6 mt-12">
-        <div class="container mx-auto px-4 text-center">
-            <p>&copy; 2024 CRIMAP - Credit Risk Management Platform</p>
-        </div>
-    </footer>
-</body>
-</html>
+    {% if loans %}
+    <div class="table-wrapper">
+        <table class="table table-hover loans-table">
+            <thead>
+                <tr>
+                    <th>Applicant</th>
+                    <th>Amount</th>
+                    <th>Term</th>
+                    <th>Purpose</th>
+                    <th>Status</th>
+                    <th>Risk Score</th>
+                    <th>Applied Date</th>
+                    {% if current_user.role in ['admin', 'loan_officer'] %}
+                    <th>Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for loan in loans %}
+                <tr>
+                    <td>
+                        <strong>{{ loan.client_name }}</strong><br>
+                        <span class="text-muted">{{ loan.client_email }}</span>
+                    </td>
+                    <td>KSh {{ '%.2f'|format(loan.amount) }}</td>
+                    <td>{{ loan.term }} months</td>
+                    <td>{{ loan.purpose }}</td>
+                    <td>
+                        <span class="badge {% if loan.status == 'approved' %}bg-green-600{% elif loan.status == 'pending' %}bg-yellow-500{% else %}bg-red-600{% endif %}">
+                            {{ loan.status|title }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span>{{ '%.1f'|format(loan.risk_score) }}%</span>
+                            <div style="flex:1; min-width:100px; height:6px; background:rgba(255,255,255,0.12); border-radius:999px;">
+                                <div style="height:100%; border-radius:999px; width: {{ loan.risk_score }}%; background:{% if loan.risk_score < 40 %}linear-gradient(135deg,#2ec4b6,#1cae9c){% elif loan.risk_score < 70 %}linear-gradient(135deg,#ffd166,#fca311){% else %}linear-gradient(135deg,#ef476f,#d42552){% endif %};"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ loan.created_at.strftime('%Y-%m-%d') }}</td>
+                    {% if current_user.role in ['admin', 'loan_officer'] %}
+                    <td style="display:flex; gap:8px;">
+                        <form action="{{ url_for('update_loan_status', loan_id=loan.id) }}" method="POST" style="display:flex; gap:8px;">
+                            {% if loan.status != 'approved' %}
+                            <button type="submit" name="status" value="approved" class="btn btn-primary" style="padding:8px 12px;">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            {% endif %}
+                            {% if loan.status != 'rejected' %}
+                            <button type="submit" name="status" value="rejected" class="btn btn-danger" style="padding:8px 12px;">
+                                <i class="fas fa-xmark"></i>
+                            </button>
+                            {% endif %}
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info" style="display:flex; align-items:center; gap:12px;">
+        <i class="fas fa-info-circle"></i>
+        <span>
+            {% if current_user.role == 'borrower' %}
+                You have not submitted any loan applications yet.
+            {% else %}
+                There are currently no loan applications in the system.
+            {% endif %}
+        </span>
+    </div>
+    {% if current_user.role == 'borrower' %}
+    <div style="margin-top:16px;">
+        <a href="{{ url_for('apply_loan') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Apply for Your First Loan
+        </a>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

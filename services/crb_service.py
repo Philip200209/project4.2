@@ -44,7 +44,10 @@ class CRBService:
         id_last_digit = int(national_id[-1]) if national_id else random.randint(0, 9)
         base_score = 300 + (id_last_digit * 55)
         credit_score = min(850, max(300, base_score + random.randint(-50, 50)))
-        
+        bureaus = ['Metropol', 'TransUnion', 'CRB Africa']
+        bureau = random.choice(bureaus)
+
+        # High/good credit profile
         if credit_score >= 700:
             return {
                 'success': True,
@@ -56,6 +59,38 @@ class CRBService:
                 'blacklist_status': False,
                 'days_arrears': 0,
                 'credit_rating': 'Good',
-                'recommendation': 'LOW_RISK'
+                'recommendation': 'LOW_RISK',
+                'crb_bureau': bureau
             }
-        # ... rest of simulation logic (from previous code)
+
+        # Fair/average credit profile
+        if 600 <= credit_score < 700:
+            return {
+                'success': True,
+                'credit_score': credit_score,
+                'active_loans': random.randint(1, 3),
+                'default_history': random.randint(0, 2),
+                'credit_utilization': round(random.uniform(0.3, 0.65), 2),
+                'payment_pattern': random.choice(['irregular', 'mostly_on_time']),
+                'blacklist_status': False,
+                'days_arrears': random.choice([0, 0, 0, random.randint(5, 30)]),
+                'credit_rating': 'Fair',
+                'recommendation': 'MEDIUM_RISK',
+                'crb_bureau': bureau
+            }
+
+        # Poor/very poor profile (possible blacklist)
+        blacklist = True if (credit_score < 500 or id_last_digit in [0, 1]) else False
+        return {
+            'success': True,
+            'credit_score': credit_score,
+            'active_loans': random.randint(0, 4),
+            'default_history': random.randint(1, 4),
+            'credit_utilization': round(random.uniform(0.6, 0.95), 2),
+            'payment_pattern': 'delayed',
+            'blacklist_status': blacklist,
+            'days_arrears': random.randint(15, 120),
+            'credit_rating': 'Very Poor' if credit_score < 500 else 'Poor',
+            'recommendation': 'REJECT' if blacklist else 'HIGH_RISK',
+            'crb_bureau': bureau
+        }

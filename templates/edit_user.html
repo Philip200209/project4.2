@@ -1,23 +1,37 @@
 {% extends 'base.html' %}
+{% block title %}Edit User · CRIMAP{% endblock %}
 {% block content %}
-<div class="container mt-4">
-  <h3>Edit User</h3>
-  <form method="POST" action="{{ url_for('users_bp.edit_user', user_id=user.id) }}">
-    <div class="mb-3">
-      <label for="username" class="form-label">Username</label>
-      <input type="text" name="username" class="form-control" value="{{ user.username }}" required>
+<div class="form-card">
+  <div class="header" style="border: none; padding: 0; margin-bottom: 24px;">
+    <div>
+      <h2><i class="fas fa-user-gear"></i> Update User</h2>
+      <p class="text-muted">Modify authentication details or switch the user role.</p>
     </div>
-    <div class="mb-3">
+  </div>
+
+  <form method="POST" action="{{ url_for('users_bp.edit_user', user_id=user.id) }}" class="grid" style="gap: 18px;">
+    <div>
+      <label for="username" class="form-label">Username</label>
+      <input type="text" id="username" name="username" class="form-control" value="{{ user.username }}" required>
+    </div>
+    <div>
       <label for="role" class="form-label">Role</label>
-      <select name="role" class="form-select" required>
+      <select id="role" name="role" class="form-select" required>
         <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
         <option value="loan_officer" {% if user.role == 'loan_officer' %}selected{% endif %}>Loan Officer</option>
         <option value="credit_analyst" {% if user.role == 'credit_analyst' %}selected{% endif %}>Credit Analyst</option>
         <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
       </select>
     </div>
-    <button type="submit" class="btn btn-primary">Update User</button>
-    <a href="{{ url_for('users_bp.manage_users') }}" class="btn btn-secondary ms-2">Cancel</a>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Update User
+      </button>
+      <a href="{{ url_for('users_bp.manage_users') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Cancel
+      </a>
+    </div>
   </form>
 </div>
 {% endblock %}

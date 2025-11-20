@@ -1,30 +1,50 @@
 {% extends 'base.html' %}
+{% block title %}Edit Client · CRIMAP{% endblock %}
 {% block content %}
-<div class="container mt-5">
-  <h3>Edit Client</h3>
-  <form method="POST">
-    <div class="mb-3">
-      <label class="form-label">Full Name</label>
-      <input type="text" class="form-control" name="name" value="{{ client.name }}" required>
+<div class="form-card">
+  <div class="header" style="border: none; padding: 0; margin-bottom: 24px;">
+    <div>
+      <h2><i class="fas fa-user-edit"></i> Update Client Profile</h2>
+      <p class="text-muted">Revise the client contact and credit information.</p>
     </div>
-    <div class="mb-3">
-      <label class="form-label">Phone</label>
-      <input type="text" class="form-control" name="phone" value="{{ client.phone }}" required>
+  </div>
+
+  <form method="POST" class="grid" style="gap: 18px;">
+    <div>
+      <label for="name" class="form-label">Full Name</label>
+      <input type="text" id="name" class="form-control" name="name" value="{{ client.name }}" required>
     </div>
-    <div class="mb-3">
-      <label class="form-label">Email</label>
-      <input type="email" class="form-control" name="email" value="{{ client.email }}">
+
+    <div class="grid" style="gap: 18px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+      <div>
+        <label for="phone" class="form-label">Phone</label>
+        <input type="text" id="phone" class="form-control" name="phone" value="{{ client.phone }}" required>
+      </div>
+      <div>
+        <label for="email" class="form-label">Email</label>
+        <input type="email" id="email" class="form-control" name="email" value="{{ client.email }}">
+      </div>
     </div>
-    <div class="mb-3">
-      <label class="form-label">Monthly Income</label>
-      <input type="number" class="form-control" name="income" value="{{ client.income }}" required>
+
+    <div class="grid" style="gap: 18px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+      <div>
+        <label for="income" class="form-label">Monthly Income</label>
+        <input type="number" id="income" class="form-control" name="income" value="{{ client.income }}" required>
+      </div>
+      <div>
+        <label for="credit_score" class="form-label">Credit Score</label>
+        <input type="number" id="credit_score" class="form-control" name="credit_score" value="{{ client.credit_score }}" required>
+      </div>
     </div>
-    <div class="mb-3">
-      <label class="form-label">Credit Score</label>
-      <input type="number" class="form-control" name="credit_score" value="{{ client.credit_score }}" required>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Update Client
+      </button>
+      <a href="{{ url_for('clients_bp.view_clients') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Cancel
+      </a>
     </div>
-    <button type="submit" class="btn btn-success">Update Client</button>
-    <a href="{{ url_for('clients_bp.view_clients') }}" class="btn btn-secondary ms-2">Cancel</a>
   </form>
 </div>
 {% endblock %}

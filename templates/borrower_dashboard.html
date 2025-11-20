@@ -3,384 +3,666 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Borrower Dashboard - CRIMAP</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .dashboard-header {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: white;
-            padding: 30px 40px;
-            text-align: center;
-        }
-
-        .dashboard-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 300;
-        }
-
-        .welcome-text {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 30px;
-            background: #f8f9fa;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            border-left: 4px solid #3498db;
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-card.pending { border-left-color: #f39c12; }
-        .stat-card.approved { border-left-color: #27ae60; }
-        .stat-card.rejected { border-left-color: #e74c3c; }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #2c3e50;
-            display: block;
-        }
-
-        .stat-label {
-            color: #7f8c8d;
-            font-size: 1rem;
-            margin-top: 5px;
-        }
-
-        .main-content {
-            padding: 40px;
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #ecf0f1;
-        }
-
-        .ai-assessment-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-        }
-
-        .ai-assessment-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-        }
-
-        .ai-assessment-card p {
-            margin-bottom: 20px;
-            opacity: 0.9;
-            line-height: 1.6;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: white;
-            color: #667eea;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-right: 10px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid white;
-            color: white;
-        }
-
-        .btn-outline:hover {
-            background: white;
-            color: #667eea;
-        }
-
-        .applications-table {
-            width: 100%;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        }
-
-        .applications-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .applications-table th {
-            background: #34495e;
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 500;
-        }
-
-        .applications-table td {
-            padding: 15px;
-            border-bottom: 1px solid #ecf0f1;
-        }
-
-        .applications-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-approved {
-            background: #d1edff;
-            color: #0c5460;
-        }
-
-        .status-rejected {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-
-        .dashboard-footer {
-            background: #34495e;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            margin-top: 40px;
-        }
-
-        .user-info {
-            background: #ecf0f1;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-                padding: 20px;
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Borrower Workspace - CRIMAP</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            :root {
+                --bg-gradient: radial-gradient(circle at 15% 12%, rgba(76,130,255,0.24) 0%, rgba(76,130,255,0) 45%),
+                                radial-gradient(circle at 85% 10%, rgba(236,143,106,0.24) 0%, rgba(236,143,106,0) 48%),
+                                linear-gradient(135deg, #0f192e 0%, #10223f 55%, #0f2e58 100%);
+                --glass: rgba(255,255,255,0.14);
+                --panel: rgba(14,24,44,0.78);
+                --border: rgba(255,255,255,0.12);
+                --primary: #4c82ff;
+                --accent: #ec8f6a;
+                --success: #2ec4b6;
+                --warning: #ffd166;
+                --danger: #ef476f;
+                --text: #f4f6ff;
+                --muted: #9aa8d0;
+                --shadow: 0 28px 55px rgba(6,14,30,0.45);
+                --radius-lg: 26px;
+                --radius-md: 18px;
+                --radius-sm: 12px;
             }
-            
-            .main-content {
-                padding: 20px;
+
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+
+            body {
+                font-family: 'Inter', 'Segoe UI', sans-serif;
+                background: var(--bg-gradient);
+                min-height: 100vh;
+                color: var(--text);
+                padding: clamp(18px, 3vw, 34px);
             }
-            
-            .applications-table {
-                overflow-x: auto;
+
+            a { color: inherit; text-decoration: none; }
+
+            .app-shell {
+                max-width: 1360px;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: 260px 1fr;
+                gap: clamp(18px, 3vw, 30px);
             }
-            
-            .action-buttons {
-                flex-direction: column;
+
+            .sidebar {
+                background: linear-gradient(155deg, rgba(14,24,44,0.92), rgba(12,23,40,0.72));
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                padding: clamp(24px, 3vw, 30px);
+                display: grid;
+                gap: clamp(24px, 3vw, 32px);
+                backdrop-filter: blur(16px);
             }
-            
-            .btn {
-                margin-right: 0;
-                margin-bottom: 10px;
+
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+            }
+
+            .brand-icon {
+                width: 46px;
+                height: 46px;
+                border-radius: 14px;
+                background: linear-gradient(135deg, rgba(76,130,255,0.85), rgba(236,143,106,0.8));
+                display: grid;
+                place-items: center;
+                font-size: 1.2rem;
+            }
+
+            .brand h1 {
+                font-family: 'Poppins', sans-serif;
+                font-size: 1.15rem;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+            }
+
+            .nav-section { display: grid; gap: 12px; }
+            .nav-label { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted); }
+
+            .nav-link {
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                align-items: center;
+                gap: 14px;
+                padding: 12px 16px;
+                border-radius: var(--radius-md);
+                color: var(--muted);
+                border: 1px solid transparent;
+                transition: transform 0.25s ease, border 0.25s ease, color 0.25s ease, background 0.25s ease;
+            }
+
+            .nav-link i { font-size: 0.95rem; }
+            .nav-link span { font-size: 0.92rem; font-weight: 500; }
+
+            .nav-link[data-active="true"],
+            .nav-link:hover {
+                color: var(--text);
+                border-color: var(--border);
+                background: rgba(76,130,255,0.12);
+                transform: translateX(4px);
+            }
+
+            .nav-count {
+                font-size: 0.75rem;
+                padding: 3px 9px;
+                border-radius: 999px;
+                background: rgba(255,255,255,0.08);
+                color: var(--muted);
+            }
+
+            .sidebar-footer {
+                margin-top: auto;
+                padding-top: 12px;
+                border-top: 1px solid rgba(255,255,255,0.06);
+                font-size: 0.84rem;
+                color: var(--muted);
+            }
+
+            .main { display: grid; gap: clamp(22px, 4vw, 34px); }
+
+            .page-header {
+                background: linear-gradient(135deg, rgba(12,22,40,0.95), rgba(12,24,44,0.78));
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                padding: clamp(24px, 4vw, 38px);
+                display: grid;
+                gap: clamp(22px, 4vw, 30px);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .page-header::after {
+                content: '';
+                position: absolute;
+                inset: -40% -30% 30% 60%;
+                background: radial-gradient(circle, rgba(76,130,255,0.32), transparent 70%);
+                pointer-events: none;
+            }
+
+            .header-grid {
+                position: relative;
+                z-index: 2;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 24px;
+            }
+
+            .header-title h2 {
+                font-family: 'Poppins', sans-serif;
+                font-size: clamp(1.7rem, 4vw, 2.5rem);
+                font-weight: 600;
+                margin-bottom: 6px;
+            }
+
+            .header-title p { color: var(--muted); font-size: 0.94rem; max-width: 520px; }
+
+            .header-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 16px;
+                border-radius: 999px;
+                font-weight: 600;
+                font-size: 0.85rem;
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.16);
+                color: var(--text);
+            }
+
+            .header-actions {
+                position: relative;
+                z-index: 2;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .header-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 20px;
+                border-radius: 14px;
+                font-weight: 600;
+                font-size: 0.92rem;
+                border: 1px solid rgba(255,255,255,0.14);
+                background: rgba(255,255,255,0.05);
+                color: var(--text);
+                transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            }
+
+            .header-btn.primary { background: linear-gradient(135deg, #4c82ff, #7aa6ff); border: none; box-shadow: 0 15px 26px rgba(76,130,255,0.22); }
+            .header-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(11,18,34,0.32); }
+
+            .insights-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: clamp(16px, 3vw, 24px);
+            }
+
+            .insight-card {
+                background: var(--panel);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                padding: 22px 20px;
+                display: grid;
+                gap: 16px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .insight-card::after {
+                content: '';
+                position: absolute;
+                inset: -55% 50% 40% -40%;
+                background: radial-gradient(circle, rgba(76,130,255,0.18), transparent 70%);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .insight-card:hover::after { opacity: 1; }
+
+            .insight-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                position: relative;
+                z-index: 2;
+            }
+
+            .insight-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); }
+            .insight-value { font-size: clamp(1.6rem, 3vw, 2.3rem); font-family: 'Poppins', sans-serif; font-weight: 600; }
+
+            .progress {
+                width: 100%;
+                height: 6px;
+                border-radius: 999px;
+                background: rgba(255,255,255,0.08);
+                overflow: hidden;
+            }
+
+            .progress span {
+                display: block;
+                height: 100%;
+                border-radius: 999px;
+                background: linear-gradient(135deg, #4c82ff, #78a6ff);
+                width: var(--percent, 0%);
+            }
+
+            .insight-card.pending .progress span { background: linear-gradient(135deg, #ffd166, #fca311); }
+            .insight-card.approved .progress span { background: linear-gradient(135deg, #2ec4b6, #1cae9c); }
+            .insight-card.rejected .progress span { background: linear-gradient(135deg, #ef476f, #d42552); }
+
+            .insight-meta { font-size: 0.84rem; color: var(--muted); display: flex; justify-content: space-between; }
+
+            .content-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+                gap: clamp(18px, 4vw, 28px);
+            }
+
+            .panel {
+                background: var(--panel);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                padding: clamp(22px, 4vw, 32px);
+                display: grid;
+                gap: 22px;
+            }
+
+            .panel-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+            .panel-header h3 { font-size: 1.12rem; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; }
+            .panel-header h3 i { color: #b8cafd; }
+            .panel-subtitle { font-size: 0.88rem; color: var(--muted); }
+
+            .loan-table {
+                background: rgba(255,255,255,0.05);
+                border-radius: var(--radius-md);
+                border: 1px solid rgba(255,255,255,0.08);
+                overflow: hidden;
+            }
+
+            .loan-table table { width: 100%; border-collapse: collapse; min-width: 640px; }
+            .loan-table th, .loan-table td { padding: 16px 18px; font-size: 0.9rem; text-align: left; }
+            .loan-table th { background: rgba(76,130,255,0.12); color: #d0ddff; border-bottom: 1px solid rgba(255,255,255,0.08); }
+            .loan-table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+            .loan-table tr:hover td { background: rgba(76,130,255,0.08); }
+
+            .status-badge {
+                padding: 6px 14px;
+                border-radius: 999px;
+                font-size: 0.76rem;
+                font-weight: 600;
+                text-transform: capitalize;
+            }
+
+            .status-pending { background: rgba(255,209,102,0.18); color: #ffd166; }
+            .status-approved { background: rgba(46,196,182,0.18); color: #71e7db; }
+            .status-rejected { background: rgba(239,71,111,0.18); color: #ff94ab; }
+
+            .empty-state {
                 text-align: center;
+                padding: 42px 30px;
+                border-radius: var(--radius-md);
+                border: 1px dashed rgba(255,255,255,0.18);
+                background: rgba(255,255,255,0.04);
+                display: grid;
+                gap: 12px;
             }
-        }
-    </style>
-</head>
-<body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <div class="dashboard-header">
-            <h1>Borrower Dashboard</h1>
-            <p class="welcome-text">Welcome back, <strong>{{ username }}</strong>! Manage your loans and check your eligibility.</p>
-        </div>
 
-        <!-- User Info -->
-        <div class="user-info">
-            <p><strong>Role:</strong> Borrower | <strong>Total Applications:</strong> {{ total_loans }}</p>
-        </div>
+            .empty-state-icon { font-size: 2.8rem; opacity: 0.38; }
+            .empty-state p { color: var(--muted); font-size: 0.9rem; }
 
-        <!-- Statistics Cards -->
-        <div class="stats-grid">
-            <div class="stat-card pending">
-                <span class="stat-number">{{ stats.pending }}</span>
-                <span class="stat-label">Pending Applications</span>
-            </div>
-            <div class="stat-card approved">
-                <span class="stat-number">{{ stats.approved }}</span>
-                <span class="stat-label">Approved Loans</span>
-            </div>
-            <div class="stat-card rejected">
-                <span class="stat-number">{{ stats.rejected }}</span>
-                <span class="stat-label">Rejected Applications</span>
-            </div>
-        </div>
+            .actions-panel {
+                background: var(--panel);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                padding: clamp(22px, 4vw, 32px);
+                display: grid;
+                gap: 20px;
+            }
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- AI Assessment Section -->
-            <div class="section">
-                <div class="ai-assessment-card">
-                    <h3>🚀 Smart Loan Assessment</h3>
-                    <p>Curious about your loan eligibility? Our advanced AI system analyzes your profile to predict loan approval chances and provide personalized recommendations.</p>
-                    <div class="action-buttons">
-                        <a href="/prediction" class="btn">Check Loan Eligibility</a>
-                        <a href="/loans/apply" class="btn btn-outline">Apply for New Loan</a>
+            .actions-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+                gap: 16px;
+            }
+
+            .action-tile {
+                background: rgba(255,255,255,0.06);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: var(--radius-md);
+                padding: 18px 20px;
+                display: grid;
+                gap: 10px;
+                transition: transform 0.25s ease, border 0.25s ease;
+            }
+
+            .action-tile:hover { transform: translateY(-4px); border-color: rgba(76,130,255,0.32); }
+            .tile-title { font-weight: 600; font-size: 0.94rem; }
+            .tile-desc { font-size: 0.82rem; color: var(--muted); }
+            .tile-link { font-size: 0.78rem; font-weight: 600; color: #bacbff; display: inline-flex; align-items: center; gap: 8px; }
+
+            .cta-group { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+            .cta-group .btn { padding: 12px 24px; border-radius: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; }
+            .cta-group .btn.primary { background: linear-gradient(135deg, #4c82ff, #7aa6ff); color: var(--text); }
+            .cta-group .btn.outline { background: transparent; border: 2px solid rgba(255,255,255,0.5); color: var(--text); }
+            .cta-group .btn.outline:hover { background: rgba(255,255,255,0.12); }
+
+            .btn-small {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 16px;
+                border-radius: 12px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.14);
+                color: var(--text);
+            }
+
+            @media (max-width: 1100px) {
+                .app-shell { grid-template-columns: 1fr; }
+                .sidebar { position: sticky; top: 16px; }
+                .content-grid { grid-template-columns: 1fr; }
+            }
+
+            @media (max-width: 768px) {
+                body { padding: 16px; }
+                .page-header { padding: 24px; }
+                .header-actions { width: 100%; }
+                .header-btn { flex: 1; justify-content: center; }
+                .insights-grid { grid-template-columns: 1fr; }
+                .loan-table { overflow-x: auto; }
+            }
+
+            @media (max-width: 520px) {
+                .sidebar { padding: 22px 18px; }
+                .nav-link { grid-template-columns: auto 1fr; }
+                .nav-count { justify-self: flex-end; }
+            }
+
+            .reveal { opacity: 0; transform: translateY(24px); }
+            .reveal.show { opacity: 1; transform: translateY(0); transition: opacity 0.6s ease, transform 0.6s ease; }
+        </style>
+    </head>
+    <body>
+        <div class="app-shell">
+            <aside class="sidebar">
+                <div class="brand">
+                    <div class="brand-icon"><i class="fa-solid fa-user"></i></div>
+                    <h1>CRIMAP Borrower</h1>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-label">navigate</span>
+                    <a class="nav-link" data-active="true" href="{{ url_for('borrower_dashboard') }}">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Dashboard</span>
+                        <span class="nav-count">Home</span>
+                    </a>
+                    <a class="nav-link" href="/prediction">
+                        <i class="fa-solid fa-robot"></i>
+                        <span>Eligibility Check</span>
+                        <span class="nav-count">AI</span>
+                    </a>
+                    <a class="nav-link" href="/loans/apply">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Apply for Loan</span>
+                        <span class="nav-count">Start</span>
+                    </a>
+                    <a class="nav-link" href="/loans">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Application History</span>
+                        <span class="nav-count">{{ total_loans }}</span>
+                    </a>
+                    <a class="nav-link" href="mailto:support@crimap.com">
+                        <i class="fa-solid fa-headset"></i>
+                        <span>Support & Help</span>
+                        <span class="nav-count">Ask</span>
+                    </a>
+                    <a class="nav-link" href="/logout">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
+                        <span class="nav-count">Exit</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-footer">
+                    <strong>{{ total_loans }}</strong> applications filed • Track progress in real time
+                </div>
+            </aside>
+
+            <main class="main">
+                <section class="page-header reveal">
+                    <div class="header-grid">
+                        <div class="header-title">
+                            <h2>Borrower Workspace</h2>
+                            <p>Welcome back, <strong>{{ username }}</strong>. Review your loan applications, monitor status updates, and explore new offers.</p>
+                        </div>
+                        <span class="header-pill"><i class="fa-solid fa-circle-check"></i> {{ stats.approved }} approved loans</span>
                     </div>
-                </div>
-            </div>
 
-            <!-- Loan Applications Section -->
-            <div class="section">
-                <h2 class="section-title">📋 My Loan Applications</h2>
-                
-                {% if loans and loans|length > 0 %}
-                <div class="applications-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Loan ID</th>
-                                <th>Amount</th>
-                                <th>Term</th>
-                                <th>Purpose</th>
-                                <th>Status</th>
-                                <th>Applied On</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for loan in loans %}
-                            <tr>
-                                <td><strong>#{{ loan.id }}</strong></td>
-                                <td><strong>KSh {{ "%.2f"|format(loan.amount) }}</strong></td>
-                                <td>{{ loan.term }} months</td>
-                                <td>{{ loan.purpose }}</td>
-                                <td>
-                                    <span class="status-badge status-{{ loan.status.lower() }}">
-                                        {{ loan.status }}
-                                    </span>
-                                </td>
-                                <td>{{ loan.created_at.strftime('%Y-%m-%d') if loan.created_at else 'N/A' }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="empty-state">
-                    <div>📄</div>
-                    <h3>No Loan Applications Yet</h3>
-                    <p>You haven't applied for any loans yet. Start your journey by applying for a loan today!</p>
-                    <div class="action-buttons">
-                        <a href="/prediction" class="btn" style="background: #3498db; color: white;">Check Eligibility First</a>
+                    <div class="header-actions">
+                        <a class="header-btn primary" href="/loans/apply"><i class="fa-solid fa-pen-to-square"></i> Start New Application</a>
+                        <a class="header-btn" href="/prediction"><i class="fa-solid fa-gauge-high"></i> Run Eligibility Check</a>
+                        <a class="header-btn" href="/loans"><i class="fa-solid fa-folder-open"></i> View Full History</a>
                     </div>
-                </div>
-                {% endif %}
-            </div>
+                </section>
 
-            <!-- Quick Actions -->
-            <div class="section">
-                <h2 class="section-title">⚡ Quick Actions</h2>
-                <div class="action-buttons">
-                    <a href="/prediction" class="btn" style="background: #e74c3c; color: white;">🤖 Check Eligibility</a>
-                    <a href="/loans" class="btn" style="background: #27ae60; color: white;">📋 View All Loans</a>
-                    <a href="/logout" class="btn" style="background: #95a5a6; color: white;">🚪 Logout</a>
-                </div>
-            </div>
+                <section class="insights-grid">
+                    <article class="insight-card reveal">
+                        <div class="insight-header">
+                            <div>
+                                <span class="insight-title">total applications</span>
+                                <div class="insight-value">{{ total_loans }}</div>
+                            </div>
+                            <span class="btn-small"><i class="fa-solid fa-layer-group"></i> Portfolio</span>
+                        </div>
+                        <div class="insight-meta">
+                            <span>Submitted over time</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="progress"><span style="--percent: 100%;"></span></div>
+                    </article>
+
+                    <article class="insight-card pending reveal">
+                        {% set pending_percent = ((stats.pending / total_loans) * 100)|round(1) if total_loans else 0 %}
+                        <div class="insight-header">
+                            <div>
+                                <span class="insight-title">awaiting decision</span>
+                                <div class="insight-value">{{ stats.pending }}</div>
+                            </div>
+                            <span class="btn-small"><i class="fa-solid fa-hourglass-half"></i> {{ pending_percent }}%</span>
+                        </div>
+                        <div class="insight-meta">
+                            <span>Pending queue</span>
+                            <span>{{ stats.pending }} files</span>
+                        </div>
+                        <div class="progress"><span style="--percent: {{ pending_percent }}%;"></span></div>
+                    </article>
+
+                    <article class="insight-card approved reveal">
+                        {% set approval_rate = ((stats.approved / total_loans) * 100)|round(1) if total_loans else 0 %}
+                        <div class="insight-header">
+                            <div>
+                                <span class="insight-title">approved loans</span>
+                                <div class="insight-value">{{ stats.approved }}</div>
+                            </div>
+                            <span class="btn-small"><i class="fa-solid fa-circle-check"></i> {{ approval_rate }}%</span>
+                        </div>
+                        <div class="insight-meta">
+                            <span>Ready for disbursement</span>
+                            <span>{{ stats.approved }} total</span>
+                        </div>
+                        <div class="progress"><span style="--percent: {{ approval_rate }}%;"></span></div>
+                    </article>
+
+                    <article class="insight-card rejected reveal">
+                        {% set rejection_rate = ((stats.rejected / total_loans) * 100)|round(1) if total_loans else 0 %}
+                        <div class="insight-header">
+                            <div>
+                                <span class="insight-title">reconsideration list</span>
+                                <div class="insight-value">{{ stats.rejected }}</div>
+                            </div>
+                            <span class="btn-small"><i class="fa-solid fa-rotate-left"></i> {{ rejection_rate }}%</span>
+                        </div>
+                        <div class="insight-meta">
+                            <span>Applications to revisit</span>
+                            <span>{{ stats.rejected }} cases</span>
+                        </div>
+                        <div class="progress"><span style="--percent: {{ rejection_rate }}%;"></span></div>
+                    </article>
+                </section>
+
+                <section class="content-grid">
+                    <article class="panel reveal">
+                        <div class="panel-header">
+                            <div>
+                                <h3><i class="fa-solid fa-file-invoice"></i> Application Timeline</h3>
+                                <p class="panel-subtitle">Stay on top of every submission and status change.</p>
+                            </div>
+                            <a class="btn-small" href="/loans">Full history</a>
+                        </div>
+
+                        {% if loans and loans|length > 0 %}
+                        <div class="loan-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Loan ID</th>
+                                        <th>Amount</th>
+                                        <th>Term</th>
+                                        <th>Purpose</th>
+                                        <th>Status</th>
+                                        <th>Submitted</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for loan in loans %}
+                                    <tr>
+                                        <td><strong>#{{ loan.id }}</strong></td>
+                                        <td>KSh {{ "%.2f"|format(loan.amount) }}</td>
+                                        <td>{{ loan.term }} months</td>
+                                        <td>{{ loan.purpose or '–' }}</td>
+                                        <td><span class="status-badge status-{{ loan.status.lower() }}">{{ loan.status }}</span></td>
+                                        <td>{{ loan.created_at.strftime('%Y-%m-%d') if loan.created_at else 'N/A' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="fa-regular fa-folder-open"></i></div>
+                            <h3>No applications yet</h3>
+                            <p>Kick off your journey by running an eligibility check and starting your first application.</p>
+                            <div class="cta-group">
+                                <a class="btn primary" href="/prediction"><i class="fa-solid fa-robot"></i> Check eligibility</a>
+                                <a class="btn outline" href="/loans/apply"><i class="fa-solid fa-paper-plane"></i> Apply now</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </article>
+
+                    <article class="panel reveal">
+                        <div class="panel-header">
+                            <div>
+                                <h3><i class="fa-solid fa-lightbulb"></i> Borrower Tips</h3>
+                                <p class="panel-subtitle">Improve approvals and track repayment confidence.</p>
+                            </div>
+                        </div>
+                        <div class="actions-grid">
+                            <a class="action-tile" href="/prediction">
+                                <div class="tile-title">Refresh eligibility</div>
+                                <p class="tile-desc">Re-run the AI assistant to see how recent changes affect your chances.</p>
+                                <span class="tile-link">Run check <i class="fa-solid fa-arrow-right"></i></span>
+                            </a>
+                            <a class="action-tile" href="/loans">
+                                <div class="tile-title">Track repayments</div>
+                                <p class="tile-desc">Stay up to date with due amounts and prevent missed installments.</p>
+                                <span class="tile-link">View schedule <i class="fa-solid fa-arrow-right"></i></span>
+                            </a>
+                            <a class="action-tile" href="/interventions">
+                                <div class="tile-title">Request assistance</div>
+                                <p class="tile-desc">Reach out early to reschedule or restructure if you anticipate delays.</p>
+                                <span class="tile-link">Open support <i class="fa-solid fa-arrow-right"></i></span>
+                            </a>
+                            <a class="action-tile" href="mailto:support@crimap.com">
+                                <div class="tile-title">Contact support</div>
+                                <p class="tile-desc">Chat with a loan officer for tailored guidance on your profile.</p>
+                                <span class="tile-link">Get help <i class="fa-solid fa-arrow-right"></i></span>
+                            </a>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="actions-panel reveal">
+                    <div class="panel-header">
+                        <div>
+                            <h3><i class="fa-solid fa-bolt"></i> Quick Launch</h3>
+                            <p class="panel-subtitle">Jump straight to the next step.</p>
+                        </div>
+                    </div>
+                    <div class="actions-grid">
+                        <a class="action-tile" href="/prediction">
+                            <div class="tile-title">AI eligibility check</div>
+                            <p class="tile-desc">Understand approval odds and get personalized recommendations.</p>
+                            <span class="tile-link">Start check <i class="fa-solid fa-arrow-right"></i></span>
+                        </a>
+                        <a class="action-tile" href="/loans/apply">
+                            <div class="tile-title">Submit a loan request</div>
+                            <p class="tile-desc">Provide loan details, purpose, and required documentation.</p>
+                            <span class="tile-link">Start application <i class="fa-solid fa-arrow-right"></i></span>
+                        </a>
+                        <a class="action-tile" href="/loans">
+                            <div class="tile-title">Review application status</div>
+                            <p class="tile-desc">See which applications are pending, approved, or need action.</p>
+                            <span class="tile-link">Open tracker <i class="fa-solid fa-arrow-right"></i></span>
+                        </a>
+                        <a class="action-tile" href="/logout">
+                            <div class="tile-title">Sign out securely</div>
+                            <p class="tile-desc">Make sure you log out when you are done reviewing your account.</p>
+                            <span class="tile-link">Logout <i class="fa-solid fa-arrow-right"></i></span>
+                        </a>
+                    </div>
+                </section>
+            </main>
         </div>
 
-        <!-- Footer -->
-        <div class="dashboard-footer">
-            <p>Need help? Contact our support team at support@crimap.com</p>
-        </div>
-    </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const revealItems = document.querySelectorAll('.reveal');
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('show');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.15 });
 
-    <script>
-        // Add simple animations
-        document.addEventListener('DOMContentLoaded', function() {
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 200);
+                revealItems.forEach(item => observer.observe(item));
             });
-        });
-    </script>
-</body>
-</html>
+        </script>
+    </body>
+    </html>

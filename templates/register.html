@@ -11,35 +11,101 @@
             min-height: 100vh;
             display: flex;
             align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .register-wrapper {
+            width: 100%;
+            max-width: 420px;
         }
         .register-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 18px 35px rgba(15,23,42,0.18);
+            padding: 22px 24px !important;
+        }
+        .register-card h2 {
+            font-size: 1.35rem;
+            margin-bottom: 4px;
+        }
+        .register-card p.text-muted {
+            font-size: 0.85rem;
         }
         .role-option {
             border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px 0;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin: 0;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         .role-option:hover {
-            border-color: #007bff;
-            background-color: #f8f9fa;
+            border-color: #0d6efd;
+            box-shadow: 0 10px 18px rgba(13,110,253,0.15);
+            transform: translateY(-2px);
         }
         .role-option.selected {
-            border-color: #007bff;
+            border-color: #0d6efd;
             background-color: #e7f3ff;
+        }
+        .role-option label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin: 0;
+        }
+        .role-option label span.role-desc {
+            font-size: 0.82rem;
+            color: #6b7280;
+        }
+        .role-option input {
+            margin-top: 4px;
+        }
+        .form-label {
+            font-size: 0.85rem;
+        }
+        .form-control {
+            padding: 9px 11px;
+            font-size: 0.9rem;
+        }
+        .btn-primary {
+            padding: 9px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .login-link {
+            font-size: 0.92rem;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .form-row .form-group {
+            flex: 1 1 180px;
+        }
+        .role-grid {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        }
+        @media (max-width: 480px) {
+            .register-wrapper {
+                max-width: 92vw;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="register-card p-4">
+    <div class="register-wrapper">
+        <div class="register-card">
                     <div class="text-center mb-4">
                         <h2>Create CRIMAP Account</h2>
                         <p class="text-muted">Choose your account type</p>
@@ -58,53 +124,56 @@
                     {% endwith %}
 
                     <form method="POST">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                        <div class="form-row mb-3">
+                            <div class="form-group">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required minlength="6">
-                            <div class="form-text">Password must be at least 6 characters long</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="confirm_password" class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        <div class="form-row mb-3">
+                            <div class="form-group">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                                <div class="form-text">At least 6 characters</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
                         </div>
 
                         <!-- Role Selection -->
                         <div class="mb-4">
                             <label class="form-label">Account Type</label>
-                            
-                            <div class="role-option" onclick="selectRole('borrower')">
-                                <input type="radio" class="form-check-input" name="role" value="borrower" id="role_borrower" checked>
-                                <label class="form-check-label fw-bold" for="role_borrower">
-                                    👤 Borrower
-                                </label>
-                                <p class="text-muted mb-0">Apply for loans and manage your applications</p>
-                            </div>
+                            <div class="role-grid">
+                                <div class="role-option" onclick="selectRole('borrower', this)">
+                                    <input type="radio" class="form-check-input" name="role" value="borrower" id="role_borrower" checked>
+                                    <label class="form-check-label fw-bold" for="role_borrower">
+                                        <span>👤 Borrower</span>
+                                        <span class="role-desc">Apply for and track loans</span>
+                                    </label>
+                                </div>
 
-                            <div class="role-option" onclick="selectRole('loan_officer')">
-                                <input type="radio" class="form-check-input" name="role" value="loan_officer" id="role_officer">
-                                <label class="form-check-label fw-bold" for="role_officer">
-                                    💼 Loan Officer
-                                </label>
-                                <p class="text-muted mb-0">Review and manage loan applications</p>
-                            </div>
+                                <div class="role-option" onclick="selectRole('loan_officer', this)">
+                                    <input type="radio" class="form-check-input" name="role" value="loan_officer" id="role_officer">
+                                    <label class="form-check-label fw-bold" for="role_officer">
+                                        <span>💼 Loan Officer</span>
+                                        <span class="role-desc">Review applications</span>
+                                    </label>
+                                </div>
 
-                            <div class="role-option" onclick="selectRole('admin')">
-                                <input type="radio" class="form-check-input" name="role" value="admin" id="role_admin">
-                                <label class="form-check-label fw-bold" for="role_admin">
-                                    🔧 Administrator
-                                </label>
-                                <p class="text-muted mb-0">Full system access and user management</p>
+                                <div class="role-option" onclick="selectRole('admin', this)">
+                                    <input type="radio" class="form-check-input" name="role" value="admin" id="role_admin">
+                                    <label class="form-check-label fw-bold" for="role_admin">
+                                        <span>🔧 Administrator</span>
+                                        <span class="role-desc">Manage the platform</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -112,15 +181,13 @@
                     </form>
 
                     <div class="text-center mt-3">
-                        <p>Already have an account? <a href="{{ url_for('login_page') }}">Login here</a></p>
+                        <p class="login-link mb-0">Already have an account? <a href="{{ url_for('login_page') }}">Login here</a></p>
                     </div>
-                </div>
-            </div>
         </div>
     </div>
 
     <script>
-        function selectRole(role) {
+        function selectRole(role, el) {
             // Update radio button
             document.getElementById(`role_${role}`).checked = true;
             
@@ -128,12 +195,15 @@
             document.querySelectorAll('.role-option').forEach(option => {
                 option.classList.remove('selected');
             });
-            event.currentTarget.classList.add('selected');
+            if (el) {
+                el.classList.add('selected');
+            }
         }
 
         // Initialize selection
         document.addEventListener('DOMContentLoaded', function() {
-            selectRole('borrower');
+            const defaultOption = document.querySelector('.role-option');
+            selectRole('borrower', defaultOption);
         });
     </script>
 

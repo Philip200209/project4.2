@@ -7,7 +7,7 @@ class CRBReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # Foreign key should point to the `loans` table (plural) to match `Loan.__tablename__`
     loan_id = db.Column(db.Integer, db.ForeignKey('loans.id'))
-    national_id = db.Column(db.String(20), nullable=False)
+    national_id = db.Column(db.String(20), nullable=False, index=True)
     phone_number = db.Column(db.String(15), nullable=False)
     
     # CRB Data Fields
@@ -23,7 +23,7 @@ class CRBReport(db.Model):
     
     # Timestamps
     report_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), index=True)
     
     def to_dict(self):
         return {

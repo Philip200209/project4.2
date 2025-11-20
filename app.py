@@ -1913,6 +1913,212 @@ def crb_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ===== CRB TEST/UTIL ENDPOINTS =====
+
+def ensure_crb_indexes():
+    """Create helpful indexes for CRBReport if they don't exist"""
+    try:
+        from sqlalchemy import Index
+        with app.app_context():
+            idx1 = Index('ix_crb_report_national_id', CRBReport.national_id)
+            idx2 = Index('ix_crb_report_created_at', CRBReport.created_at)
+            idx1.create(bind=db.engine, checkfirst=True)
+            idx2.create(bind=db.engine, checkfirst=True)
+            logger.info("CRB indexes ensured: national_id, created_at")
+    except Exception as e:
+        logger.warning(f"Failed to ensure CRB indexes: {e}")
+
+@app.route('/api/crb/test', methods=['GET', 'POST'])
+@login_required
+def crb_test_generate():
+    """Admin/Risk only: generate and persist a simulated CRB report for quick testing"""
+    role = current_user.role.lower()
+    if role not in ['admin', 'risk_analyst']:
+        return jsonify({'error': 'Access denied'}), 403
+
+    try:
+        # Support query params or JSON body
+        if request.is_json:
+            data = request.get_json(silent=True) or {}
+        else:
+            data = request.args or request.form
+
+        national_id = (data.get('national_id') or '').strip()
+        phone = (data.get('phone') or data.get('phone_number') or '0700000000').strip()
+        client_name = (data.get('client_name') or 'Test User').strip()
+
+        if not national_id:
+            return jsonify({'error': 'national_id is required'}), 400
+
+        # Get simulated CRB report
+        crb_service = CRBService()
+        crb_report = crb_service.get_credit_report(national_id=national_id, phone_number=phone, client_name=client_name)
+
+        # Persist CRB report (no loan context here)
+        try:
+            model_cols = {c.name for c in CRBReport.__table__.columns}
+        except Exception:
+            model_cols = {
+                'loan_id', 'national_id', 'phone_number', 'credit_score',
+                'active_loans', 'default_history', 'credit_utilization',
+                'payment_pattern', 'blacklist_status', 'days_arrears',
+                'credit_rating', 'crb_bureau'
+            }
+
+        crb_data = {
+            'loan_id': None,
+            'national_id': national_id,
+            'phone_number': phone,
+            'credit_score': crb_report.get('credit_score', 0),
+            'active_loans': crb_report.get('active_loans', 0),
+            'default_history': crb_report.get('default_history', 0),
+            'credit_utilization': crb_report.get('credit_utilization', 0.0),
+            'payment_pattern': crb_report.get('payment_pattern', 'unknown'),
+            'blacklist_status': crb_report.get('blacklist_status', False),
+            'days_arrears': crb_report.get('days_arrears', 0),
+            'credit_rating': crb_report.get('credit_rating', 'Unknown'),
+            'crb_bureau': crb_report.get('crb_bureau', 'Simulated')
+        }
+
+        filtered = {k: v for k, v in crb_data.items() if k in model_cols}
+        record = CRBReport(**filtered)
+        db.session.add(record)
+        db.session.commit()
+
+        # Return saved record summary
+        return jsonify({
+            'saved': True,
+            'report': {
+                'id': record.id,
+                'national_id': record.national_id,
+                'phone_number': record.phone_number,
+                'credit_score': record.credit_score,
+                'default_history': record.default_history,
+                'credit_utilization': float(record.credit_utilization or 0),
+                'blacklist_status': record.blacklist_status,
+                'days_arrears': record.days_arrears,
+                'credit_rating': record.credit_rating,
+                'crb_bureau': getattr(record, 'crb_bureau', None),
+                'loan_id': record.loan_id,
+                'created_at': record.created_at.isoformat() if getattr(record, 'created_at', None) else None
+            }
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"CRB test generate error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/admin/maintenance/create-indexes', methods=['POST'])
+@login_required
+def admin_create_indexes():
+    role = current_user.role.lower()
+    if role not in ['admin']:
+        return jsonify({'error': 'Access denied'}), 403
+    try:
+        ensure_crb_indexes()
+        return jsonify({'success': True, 'message': 'Indexes ensured'}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/crb/history', methods=['GET'])
+@login_required
+def crb_history_json():
+    """Admin/Risk only: return CRB reports for a national_id as JSON"""
+    role = current_user.role.lower()
+    if role not in ['admin', 'risk_analyst']:
+        return jsonify({'error': 'Access denied'}), 403
+
+    national_id = (request.args.get('national_id') or '').strip()
+    if not national_id:
+        return jsonify({'error': 'national_id is required'}), 400
+
+    sort = request.args.get('sort', 'date_desc')
+    blacklisted_only = request.args.get('blacklisted', default=0, type=int)
+    query = CRBReport.query.filter_by(national_id=national_id)
+    if blacklisted_only:
+        query = query.filter(CRBReport.blacklist_status.is_(True))
+    if sort == 'score_desc':
+        query = query.order_by(CRBReport.credit_score.desc())
+    elif sort == 'score_asc':
+        query = query.order_by(CRBReport.credit_score.asc())
+    elif sort == 'date_asc':
+        query = query.order_by(CRBReport.created_at.asc())
+    else:
+        query = query.order_by(CRBReport.created_at.desc())
+    reports = query.all()
+    def to_dict(r):
+        return {
+            'id': r.id,
+            'national_id': r.national_id,
+            'phone_number': r.phone_number,
+            'loan_id': r.loan_id,
+            'credit_score': r.credit_score,
+            'active_loans': r.active_loans,
+            'default_history': r.default_history,
+            'credit_utilization': float(r.credit_utilization or 0),
+            'payment_pattern': r.payment_pattern,
+            'blacklist_status': r.blacklist_status,
+            'days_arrears': r.days_arrears,
+            'credit_rating': r.credit_rating,
+            'crb_bureau': getattr(r, 'crb_bureau', None),
+            'created_at': r.created_at.isoformat() if getattr(r, 'created_at', None) else None
+        }
+
+    return jsonify({'reports': [to_dict(r) for r in reports], 'count': len(reports)})
+
+@app.route('/api/crb/history/export', methods=['GET'])
+@login_required
+def crb_history_export_csv():
+    """Admin/Risk only: export CRB history for a national_id as CSV"""
+    role = current_user.role.lower()
+    if role not in ['admin', 'risk_analyst']:
+        return jsonify({'error': 'Access denied'}), 403
+
+    national_id = (request.args.get('national_id') or '').strip()
+    sort = request.args.get('sort', 'date_desc')
+    blacklisted_only = request.args.get('blacklisted', default=0, type=int)
+    if not national_id:
+        return jsonify({'error': 'national_id is required'}), 400
+
+    query = CRBReport.query.filter_by(national_id=national_id)
+    if blacklisted_only:
+        query = query.filter(CRBReport.blacklist_status.is_(True))
+    if sort == 'score_desc':
+        query = query.order_by(CRBReport.credit_score.desc())
+    elif sort == 'score_asc':
+        query = query.order_by(CRBReport.credit_score.asc())
+    elif sort == 'date_asc':
+        query = query.order_by(CRBReport.created_at.asc())
+    else:
+        query = query.order_by(CRBReport.created_at.desc())
+
+    rows = query.all()
+
+    import csv
+    from io import StringIO
+    from flask import Response
+
+    si = StringIO()
+    writer = csv.writer(si)
+    writer.writerow(['Date','National ID','Phone','Loan ID','Credit Score','Defaults','Utilization','Arrears (days)','Blacklisted','Bureau'])
+    for r in rows:
+        writer.writerow([
+            (r.created_at or r.report_date).strftime('%Y-%m-%d %H:%M') if (r.created_at or r.report_date) else '',
+            r.national_id,
+            r.phone_number,
+            r.loan_id or '',
+            r.credit_score or 0,
+            r.default_history or 0,
+            float(r.credit_utilization or 0),
+            r.days_arrears or 0,
+            'Yes' if r.blacklist_status else 'No',
+            getattr(r, 'crb_bureau', '')
+        ])
+
+    output = si.getvalue()
+    filename = f"crb_history_{national_id}.csv"
+    return Response(output, mimetype='text/csv', headers={'Content-Disposition': f'attachment; filename={filename}'})
+
 # ===== RISK DASHBOARD REDIRECT ROUTES =====
 
 @app.route('/risk')
@@ -1920,6 +2126,91 @@ def crb_stats():
 def risk_redirect():
     """Redirect /risk to /risk-analyst-dashboard"""
     return redirect(url_for('risk_analyst_dashboard'))
+
+# ===== CRB HISTORY VIEW =====
+@app.route('/crb/history', methods=['GET'])
+@login_required
+def crb_history_lookup():
+    """Search form and optional param-driven lookup for CRB history by national ID with pagination and sorting"""
+    role = current_user.role.lower()
+    if role not in ['admin', 'risk_analyst']:
+        flash('Access denied. Admin or Risk Analyst privileges required.', 'error')
+        return redirect(url_for('dashboard') if role == 'admin' else url_for('loan_officer_dashboard') if role in ['loan_officer','officer'] else url_for('borrower_dashboard'))
+
+    national_id = (request.args.get('national_id') or '').strip()
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    sort = request.args.get('sort', 'date_desc')
+    blacklisted_only = request.args.get('blacklisted', default=0, type=int)
+
+    reports = []
+    pagination = None
+    if national_id:
+        query = CRBReport.query.filter_by(national_id=national_id)
+        if blacklisted_only:
+            query = query.filter(CRBReport.blacklist_status.is_(True))
+        if sort == 'score_desc':
+            query = query.order_by(CRBReport.credit_score.desc())
+        elif sort == 'score_asc':
+            query = query.order_by(CRBReport.credit_score.asc())
+        elif sort == 'date_asc':
+            query = query.order_by(CRBReport.created_at.asc())
+        else:  # date_desc
+            query = query.order_by(CRBReport.created_at.desc())
+
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        reports = pagination.items
+
+    return render_template('crb_history.html', 
+                           username=current_user.username, 
+                           national_id=national_id, 
+                           reports=reports,
+                           pagination=pagination,
+                           sort=sort,
+                           per_page=per_page,
+                           blacklisted=blacklisted_only)
+
+@app.route('/crb/history/<national_id>')
+@login_required
+def crb_history(national_id):
+    role = current_user.role.lower()
+    if role not in ['admin', 'risk_analyst']:
+        flash('Access denied. Admin or Risk Analyst privileges required.', 'error')
+        return redirect(url_for('dashboard') if role == 'admin' else url_for('loan_officer_dashboard') if role in ['loan_officer','officer'] else url_for('borrower_dashboard'))
+
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    sort = request.args.get('sort', 'date_desc')
+    blacklisted_only = request.args.get('blacklisted', default=0, type=int)
+
+    query = CRBReport.query.filter_by(national_id=national_id)
+    if blacklisted_only:
+        query = query.filter(CRBReport.blacklist_status.is_(True))
+    if sort == 'score_desc':
+        query = query.order_by(CRBReport.credit_score.desc())
+    elif sort == 'score_asc':
+        query = query.order_by(CRBReport.credit_score.asc())
+    elif sort == 'date_asc':
+        query = query.order_by(CRBReport.created_at.asc())
+    else:
+        query = query.order_by(CRBReport.created_at.desc())
+
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    reports = pagination.items
+    return render_template('crb_history.html', 
+                           username=current_user.username, 
+                           national_id=national_id, 
+                           reports=reports,
+                           pagination=pagination,
+                           sort=sort,
+                           per_page=per_page,
+                           blacklisted=blacklisted_only)
+
+# Backward/alternate path alias
+@app.route('/crb-history')
+@login_required
+def crb_history_alias():
+    return redirect(url_for('crb_history_lookup'))
 
 # Risk Threshold Management API
 @app.route('/api/update-risk-thresholds', methods=['POST'])
@@ -2557,6 +2848,220 @@ def reports_page():
     
     return render_template('reports.html', username=current_user.username)
 
+# ===== ADMIN OVERVIEW API (for dashboard charts) =====
+
+@app.route('/api/admin/overview')
+@login_required
+def api_admin_overview():
+    """Aggregate portfolio + CRB analytics for admin dashboard charts"""
+    role = current_user.role.lower()
+    if role not in ['admin', 'risk_analyst']:
+        return jsonify({'error': 'Access denied'}), 403
+
+    try:
+        portfolio_health = get_portfolio_health()
+        risk_distribution = get_risk_distribution()
+        monthly_trends = get_portfolio_health_trends()
+        warning_indicators = get_early_warning_indicators()
+
+        # Inline CRB stats to avoid role-restricted endpoint reuse
+        score_ranges = {
+            'excellent': CRBReport.query.filter(CRBReport.credit_score >= 750).count(),
+            'good': CRBReport.query.filter(CRBReport.credit_score >= 700, CRBReport.credit_score < 750).count(),
+            'fair': CRBReport.query.filter(CRBReport.credit_score >= 600, CRBReport.credit_score < 700).count(),
+            'poor': CRBReport.query.filter(CRBReport.credit_score >= 500, CRBReport.credit_score < 600).count(),
+            'very_poor': CRBReport.query.filter(CRBReport.credit_score < 500).count()
+        }
+        total_reports = CRBReport.query.count()
+        blacklist_count = CRBReport.query.filter_by(blacklist_status=True).count()
+        avg_credit_score = db.session.query(db.func.avg(CRBReport.credit_score)).scalar() or 0
+
+        crb_stats = {
+            'score_distribution': score_ranges,
+            'total_reports': total_reports,
+            'blacklist_rate': round((blacklist_count / max(total_reports, 1)) * 100, 2),
+            'avg_credit_score': float(avg_credit_score)
+        }
+
+        return jsonify({
+            'portfolio_health': portfolio_health,
+            'risk_distribution': risk_distribution,
+            'monthly_trends': monthly_trends,
+            'warning_indicators': warning_indicators,
+            'crb_stats': crb_stats
+        })
+    except Exception as e:
+        logger.error(f"Error in admin overview API: {e}")
+        return jsonify({'error': 'Failed to load overview data'}), 500
+
+# ===== REPORTS: VIEW + EXPORT (LIGHTWEIGHT) =====
+
+def _loans_table_rows(query):
+    rows = []
+    for loan in query:
+        rows.append({
+            'ID': loan.id,
+            'Client': getattr(loan, 'client_name', '') or '-',
+            'Email': getattr(loan, 'client_email', '') or '-',
+            'Amount': f"{float(loan.amount or 0):.2f}",
+            'Status': loan.status or '-',
+            'RiskScore': getattr(loan, 'risk_score', ''),
+            'CreatedAt': loan.created_at.strftime('%Y-%m-%d') if getattr(loan, 'created_at', None) else ''
+        })
+    return rows
+
+def _csv_response(filename, columns, rows):
+    import csv
+    from io import StringIO
+    si = StringIO()
+    writer = csv.DictWriter(si, fieldnames=columns)
+    writer.writeheader()
+    for r in rows:
+        writer.writerow({c: r.get(c, '') for c in columns})
+    from flask import Response
+    return Response(
+        si.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename={filename}'}
+    )
+
+@app.route('/reports/loan-portfolio')
+@login_required
+def report_loan_portfolio():
+    loans = Loan.query.order_by(Loan.created_at.desc()).limit(200).all()
+    rows = _loans_table_rows(loans)
+    columns = ['ID','Client','Email','Amount','Status','RiskScore','CreatedAt']
+    metrics = {
+        'Total Loans': Loan.query.count(),
+        'Approved': Loan.query.filter_by(status='approved').count(),
+        'Pending': Loan.query.filter_by(status='pending').count(),
+        'Rejected': Loan.query.filter_by(status='rejected').count()
+    }
+    return render_template('reports_view.html', username=current_user.username,
+                           title='Loan Portfolio Report', description='Overview of all loan applications and statuses.',
+                           columns=columns, rows=rows, metrics=metrics)
+
+@app.route('/reports/loan-portfolio/export')
+@login_required
+def report_loan_portfolio_export():
+    loans = Loan.query.order_by(Loan.created_at.desc()).all()
+    rows = _loans_table_rows(loans)
+    columns = ['ID','Client','Email','Amount','Status','RiskScore','CreatedAt']
+    return _csv_response('loan_portfolio.csv', columns, rows)
+
+@app.route('/reports/risk-analysis')
+@login_required
+def report_risk_analysis():
+    # Reuse existing analytics helpers
+    portfolio_health = get_portfolio_health()
+    risk_distribution = get_risk_distribution()
+    high_risk = Loan.query.filter(Loan.status.in_(['active','approved']), Loan.risk_level=='High').order_by(Loan.risk_score.asc()).limit(100).all()
+    rows = _loans_table_rows(high_risk)
+    columns = ['ID','Client','Email','Amount','Status','RiskScore','CreatedAt']
+    metrics = {
+        'Active Loans': portfolio_health.get('active_loans', 0),
+        'Default Rate %': portfolio_health.get('default_rate', 0),
+        'Avg Risk Score': f"{portfolio_health.get('avg_risk_score',0):.1f}",
+        'High Risk Bkts': sum(risk_distribution.get('data', [])) if risk_distribution.get('data') else 0
+    }
+    return render_template('reports_view.html', username=current_user.username,
+                           title='Risk Analysis Report', description='Portfolio risk overview and high-risk loans.',
+                           columns=columns, rows=rows, metrics=metrics)
+
+@app.route('/reports/risk-analysis/export')
+@login_required
+def report_risk_analysis_export():
+    high_risk = Loan.query.filter(Loan.status.in_(['active','approved']), Loan.risk_level=='High').order_by(Loan.risk_score.asc()).all()
+    rows = _loans_table_rows(high_risk)
+    columns = ['ID','Client','Email','Amount','Status','RiskScore','CreatedAt']
+    return _csv_response('risk_analysis.csv', columns, rows)
+
+@app.route('/reports/client-performance')
+@login_required
+def report_client_performance():
+    loans = Loan.query.order_by(Loan.created_at.desc()).limit(200).all()
+    rows = _loans_table_rows(loans)
+    columns = ['ID','Client','Email','Amount','Status','RiskScore','CreatedAt']
+    metrics = {
+        'Total Clients': Client.query.count(),
+        'Loans (Last 30d)': Loan.query.filter(Loan.created_at >= datetime.now(timezone.utc) - timedelta(days=30)).count(),
+        'Approved (Last 30d)': Loan.query.filter(Loan.created_at >= datetime.now(timezone.utc) - timedelta(days=30), Loan.status=='approved').count()
+    }
+    return render_template('reports_view.html', username=current_user.username,
+                           title='Client Performance Report', description='Recent client loan activity and outcomes.',
+                           columns=columns, rows=rows, metrics=metrics)
+
+@app.route('/reports/client-performance/export')
+@login_required
+def report_client_performance_export():
+    loans = Loan.query.order_by(Loan.created_at.desc()).all()
+    rows = _loans_table_rows(loans)
+    columns = ['ID','Client','Email','Amount','Status','RiskScore','CreatedAt']
+    return _csv_response('client_performance.csv', columns, rows)
+
+@app.route('/reports/financial-summary')
+@login_required
+def report_financial_summary():
+    from sqlalchemy import func
+    total_amount = db.session.query(func.sum(Loan.amount)).scalar() or 0
+    avg_amount = db.session.query(func.avg(Loan.amount)).scalar() or 0
+    loans = Loan.query.order_by(Loan.created_at.desc()).limit(200).all()
+    rows = _loans_table_rows(loans)
+    columns = ['ID','Client','Email','Amount','Status','RiskScore','CreatedAt']
+    metrics = {
+        'Total Amount (KSh)': f"{float(total_amount):.0f}",
+        'Average Amount (KSh)': f"{float(avg_amount):.0f}",
+        'Total Loans': Loan.query.count()
+    }
+    return render_template('reports_view.html', username=current_user.username,
+                           title='Financial Summary', description='Financial totals and recent loans.',
+                           columns=columns, rows=rows, metrics=metrics)
+
+@app.route('/reports/financial-summary/export')
+@login_required
+def report_financial_summary_export():
+    loans = Loan.query.order_by(Loan.created_at.desc()).all()
+    rows = _loans_table_rows(loans)
+    columns = ['ID','Client','Email','Amount','Status','RiskScore','CreatedAt']
+    return _csv_response('financial_summary.csv', columns, rows)
+
+@app.route('/reports/audit-trail')
+@login_required
+def report_audit_trail():
+    # Use recent interventions as activity log proxy
+    interventions = Intervention.query.order_by(Intervention.sent_at.desc()).limit(200).all()
+    rows = []
+    for i in interventions:
+        rows.append({
+            'ID': i.id,
+            'LoanID': i.loan_id,
+            'Type': i.type,
+            'Status': i.status,
+            'SentAt': i.sent_at.strftime('%Y-%m-%d %H:%M') if i.sent_at else ''
+        })
+    columns = ['ID','LoanID','Type','Status','SentAt']
+    metrics = {'Interventions (Last 200)': len(rows)}
+    return render_template('reports_view.html', username=current_user.username,
+                           title='Audit Trail Report', description='Recent automated interventions (activity log).',
+                           columns=columns, rows=rows, metrics=metrics)
+
+@app.route('/reports/audit-trail/export')
+@login_required
+def report_audit_trail_export():
+    interventions = Intervention.query.order_by(Intervention.sent_at.desc()).all()
+    rows = []
+    for i in interventions:
+        rows.append({'ID': i.id,'LoanID': i.loan_id,'Type': i.type,'Status': i.status,'SentAt': i.sent_at.strftime('%Y-%m-%d %H:%M') if i.sent_at else ''})
+    columns = ['ID','LoanID','Type','Status','SentAt']
+    return _csv_response('audit_trail.csv', columns, rows)
+
+@app.route('/reports/custom')
+@login_required
+def report_custom_builder():
+    # For now, redirect to analytics dashboard as a placeholder
+    flash('Custom report builder coming soon. Redirected to analytics.', 'info')
+    return redirect(url_for('analytics_page'))
+
 # ===== FIXED ANALYTICS AND RISK ROUTES =====
 
 @app.route('/analytics')
@@ -2672,6 +3177,38 @@ def apply_loan():
             
             # Check if applicant is blacklisted
             if crb_report.get('blacklist_status'):
+                # Persist a CRB record for audit even if we reject immediately
+                try:
+                    model_cols = {c.name for c in CRBReport.__table__.columns}
+                except Exception:
+                    model_cols = {
+                        'loan_id', 'national_id', 'phone_number', 'credit_score',
+                        'active_loans', 'default_history', 'credit_utilization',
+                        'payment_pattern', 'blacklist_status', 'days_arrears',
+                        'credit_rating', 'crb_bureau'
+                    }
+                crb_data_reject = {
+                    'loan_id': None,
+                    'national_id': national_id,
+                    'phone_number': client_phone,
+                    'credit_score': crb_report.get('credit_score', 0),
+                    'active_loans': crb_report.get('active_loans', 0),
+                    'default_history': crb_report.get('default_history', 0),
+                    'credit_utilization': crb_report.get('credit_utilization', 0.0),
+                    'payment_pattern': crb_report.get('payment_pattern', 'unknown'),
+                    'blacklist_status': crb_report.get('blacklist_status', False),
+                    'days_arrears': crb_report.get('days_arrears', 0),
+                    'credit_rating': crb_report.get('credit_rating', 'Unknown'),
+                    'crb_bureau': crb_report.get('crb_bureau', 'Simulated')
+                }
+                filtered_reject = {k: v for k, v in crb_data_reject.items() if k in model_cols}
+                try:
+                    db.session.add(CRBReport(**filtered_reject))
+                    db.session.commit()
+                except Exception as e:
+                    db.session.rollback()
+                    logger.warning(f"Failed to persist blacklisted CRB record: {e}")
+
                 flash("❌ Application cannot be processed: Applicant is blacklisted in CRB", "danger")
                 logger.info(f"CRB Blacklisted - Loan application rejected for {client_name}")
                 return render_template('apply_loan.html', 
@@ -2755,9 +3292,8 @@ def apply_loan():
                         'credit_rating'
                     }
 
-                # Explicitly exclude 'crb_bureau' from kwargs passed to the model
-                # to avoid TypeError when model mapping doesn't accept it.
-                filtered = {k: v for k, v in crb_data.items() if k in model_cols and k != 'crb_bureau'}
+                # Filter to model columns (includes 'crb_bureau' when defined)
+                filtered = {k: v for k, v in crb_data.items() if k in model_cols}
                 crb_report_record = CRBReport(**filtered)
                 db.session.add(crb_report_record)
                 # assign relationship id after flush/commit
@@ -3541,6 +4077,8 @@ if __name__ == "__main__":
                 intervention_count = Intervention.query.count()
                 crb_count = CRBReport.query.count()
                 print(f"✅ Database: {user_count} users, {loan_count} loans, {intervention_count} interventions, {crb_count} CRB reports")
+                # Ensure useful indexes exist
+                ensure_crb_indexes()
                 
                 # Initialize retraining system
                 setup_scheduler()
